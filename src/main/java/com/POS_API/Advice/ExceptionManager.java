@@ -1,9 +1,11 @@
 package com.POS_API.Advice;
 
-import com.POS_API.Advice.Exception.RequestParamWrong;
+import com.POS_API.Advice.Exception.EnumException;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.Advice.Exception.UniqueKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,8 +27,8 @@ public class ExceptionManager {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RequestParamWrong.class)
-    public ResponseEntity<Map<String, String>> handleRequestParamWrong(RequestParamWrong ex) {
+    @ExceptionHandler(EnumException.class)
+    public ResponseEntity<Map<String, String>> handleRequestParamWrong(EnumException ex) {
         Map<String, String> errorDetails = new HashMap<>();
 
         errorDetails.put("message", ex.getMessage());
@@ -34,6 +36,24 @@ public class ExceptionManager {
         errorDetails.put("invalidValue", ex.getValue());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errorDetails = new HashMap<>();
+        errorDetails.put("message",ex.getMessage());
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UniqueKeyException.class)
+    public  ResponseEntity<Map<String, String>> handleUniqueKeyException (UniqueKeyException ex){
+        Map<String,String> errorDetails = new HashMap<>();
+        errorDetails.put("message", ex.getMessage());
+        errorDetails.put("invalidValue", ex.getFieldName());
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+
     }
 
 }
