@@ -1,7 +1,8 @@
 package com.POS_API.Service;
 
-import com.POS_API.Advice.Exception.RequestParamWrong;
+import com.POS_API.Advice.Exception.EnumException;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.Advice.Exception.UniqueKeyException;
 import com.POS_API.Model.Enums.GradDidactic;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.ProfesorDAO;
@@ -52,7 +53,7 @@ public class ProfesorService {
 
             return filteredProfesori;
         } catch (IllegalArgumentException e) {
-            throw new RequestParamWrong("acad_rank", acad_rank);
+            throw new EnumException("acad_rank", acad_rank);
         }
     }
 
@@ -64,5 +65,14 @@ public class ProfesorService {
         }
 
         return profesori;
+    }
+
+    public Profesor addProfesor(Profesor profesor)
+    {
+        if (profesorRepo.existsByEmail(profesor.getEmail())) {
+            throw new UniqueKeyException("Profesori",profesor.getEmail());
+        }
+
+        return profesorRepo.save(profesor);
     }
 }
