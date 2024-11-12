@@ -1,5 +1,7 @@
 package com.POS_API.Service;
 
+import com.POS_API.Advice.Exception.RequestParamWrong;
+import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.Model.Enums.GradDidactic;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.ProfesorDAO;
@@ -21,30 +23,46 @@ public class ProfesorService {
     }
 
     public List<Profesor> findAllProfesori() {
-        return profesorRepo.findAll();
+        List<Profesor> profesori = profesorRepo.findAll();
+        if (profesori.isEmpty()) {
+            throw new ResourceNotFoundException("Profesor", "all", "no records found");
+        }
+        return profesori;
     }
 
-    public Optional<Profesor> findProfesorById(int id) {
-        return profesorRepo.findProfesorById(id);
+    public Profesor findProfesorById(int id) {
+        Optional<Profesor> profesor = profesorRepo.findById(id);
+        if (profesor.isEmpty()) {
+            throw new ResourceNotFoundException("Profesor", "id", id);
+        }
+        return profesor.get();
     }
 
     public List<Profesor> filterProfesoriByRank(List<Profesor> profesori, String acad_rank) {
         try {
             GradDidactic gradDidactic = GradDidactic.valueOf(acad_rank);
 
-            return profesori.stream()
+            List<Profesor> filteredProfesori = profesori.stream()
                     .filter(profesor -> profesor.getGradDidactic() == gradDidactic)
                     .collect(Collectors.toList());
+
+            if (filteredProfesori.isEmpty()) {
+                throw new ResourceNotFoundException("Profesor", "gradDidactic", acad_rank);
+            }
+
+            return filteredProfesori;
         } catch (IllegalArgumentException e) {
-            //TODO
-            System.out.println("Grad didactic invalid: " + acad_rank);
-            return null;
+            throw new RequestParamWrong("acad_rank", acad_rank);
         }
-
-
     }
 
     public List<Profesor> findProfesoriByName(String nume) {
-        return profesorRepo.findByNumeStartingWithOrPrenumeStartingWith(nume,nume);
+        List<Profesor> profesori = profesorRepo.findByNumeStartingWithOrPrenumeStartingWith(nume, nume);
+
+        if (profesori.isEmpty()) {
+            throw new ResourceNotFoundException("Profesor", "name like", nume);
+        }
+
+        return profesori;
     }
 }
