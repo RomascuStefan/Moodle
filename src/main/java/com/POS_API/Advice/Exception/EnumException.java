@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class RequestParamWrong extends RuntimeException {
+public class EnumException extends RuntimeException {
 
     private final String parameter;
     private final String value;
