@@ -1,12 +1,10 @@
 package com.POS_API.Controller;
 
-import com.POS_API.Advice.DTO.ProfesorDTO;
-import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Model.Disciplina;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import com.POS_API.Model.Enums.GradDidactic;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Service.DisciplinaService;
 import com.POS_API.Service.ProfesorService;
@@ -20,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -101,16 +97,8 @@ public class ProfesorController {
     }
 
     @PostMapping
-    public ResponseEntity<Profesor> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
-        Profesor profesor = new Profesor();
-        profesor.setNume(profesorDTO.getNume());
-        profesor.setPrenume(profesorDTO.getPrenume());
-        profesor.setEmail(profesorDTO.getEmail());
-        profesor.setGradDidactic(profesorDTO.getGradDidactic());
-        profesor.setTipAsociere(profesorDTO.getTipAsociere());
-        profesor.setAfiliere(profesorDTO.getAfiliere());
-
-        Profesor savedProfesor = profesorService.addProfesor(profesor);
+    public ResponseEntity<ProfesorDTO> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
+        ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
         return new ResponseEntity<>(savedProfesor, HttpStatus.CREATED);
 
     }
