@@ -15,8 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProfesorDAO extends JpaRepository<Profesor, Integer> {
-    Optional<Profesor> findProfesorById(int id);
-
     List<Profesor> findByNumeStartingWithOrPrenumeStartingWith(String nume, String prenume);
 
     Boolean existsByEmail(String email);

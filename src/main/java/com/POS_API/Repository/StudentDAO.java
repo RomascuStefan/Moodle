@@ -11,6 +11,4 @@ public interface StudentDAO extends JpaRepository<Student,Integer> {
 
     Optional<Student> findStudentById(int id);
 
-
-
 }
