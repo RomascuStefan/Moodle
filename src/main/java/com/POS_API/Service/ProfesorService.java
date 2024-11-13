@@ -1,9 +1,12 @@
 package com.POS_API.Service;
 
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Advice.Exception.EnumException;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.Advice.Exception.UniqueKeyException;
+import com.POS_API.Mapper.ProfesorMapper;
 import com.POS_API.Model.Enums.GradDidactic;
+import com.POS_API.Model.Enums.TipAsociere;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.ProfesorDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +70,15 @@ public class ProfesorService {
         return profesori;
     }
 
-    public Profesor addProfesor(Profesor profesor)
+    public ProfesorDTO addProfesor(ProfesorDTO profesorDTO)
     {
+        Profesor profesor= ProfesorMapper.toEntity(profesorDTO);
+
         if (profesorRepo.existsByEmail(profesor.getEmail())) {
             throw new UniqueKeyException("Profesori",profesor.getEmail());
         }
 
-        return profesorRepo.save(profesor);
+        return ProfesorMapper.toDTO(profesorRepo.save(profesor));
     }
+
 }
