@@ -1,12 +1,8 @@
-package com.POS_API.Advice.DTO;
+package com.POS_API.DTO;
 
-
-import com.POS_API.Model.Enums.GradDidactic;
-import com.POS_API.Model.Enums.TipAsociere;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,11 +20,11 @@ public class ProfesorDTO {
     @Email(message = "Email-ul trebuie să fie valid.")
     private String email;
 
-    @NotNull(message = "Gradul didactic este necesar.")
-    private GradDidactic gradDidactic;
+    @NotBlank(message = "Gradul didactic nu poate fi gol")
+    private String gradDidactic;
 
-    @NotNull(message = "Tipul de asociere este necesar.")
-    private TipAsociere tipAsociere;
+    @NotBlank(message = "Tipul asocierii nu poate fi nul")
+    private String tipAsociere;
 
     private String afiliere;
 }
