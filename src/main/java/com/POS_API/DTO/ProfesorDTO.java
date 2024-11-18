@@ -1,14 +1,19 @@
 package com.POS_API.DTO;
 
 
+import com.POS_API.Model.Disciplina;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ProfesorDTO {
+    private int id;
 
     @NotBlank(message = "Numele nu poate fi gol.")
     private String nume;
@@ -27,5 +32,8 @@ public class ProfesorDTO {
     private String tipAsociere;
 
     private String afiliere;
+
+    @JsonIgnore
+    private List<Disciplina> discipline;
 }
 
