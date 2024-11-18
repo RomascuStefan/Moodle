@@ -2,10 +2,13 @@ package com.POS_API.Model;
 
 import com.POS_API.Model.Enums.GradDidactic;
 import com.POS_API.Model.Enums.TipAsociere;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
 
 @Entity
 @Table(name = "profesori")
@@ -37,6 +40,10 @@ public class Profesor {
 
     @Column(length = 100)
     private String afiliere;
+
+    @OneToMany(mappedBy = "titular")
+    @JsonIgnore
+    private List<Disciplina> discipline;
 }
 
 
