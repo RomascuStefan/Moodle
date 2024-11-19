@@ -2,8 +2,8 @@ package com.POS_API.DTO;
 
 import com.POS_API.Model.Student;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +15,12 @@ public class DisciplinaDTO {
 
     @JsonIgnore
     private String cod;
+
+    @NotBlank(message = "Disciplina trebuie sa aiba titular")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String titularId;
+
+    private String numeTitular;
 
     @NotBlank(message = "Numele disciplinei nu poate sa fie gol")
     private String numeDisciplina;
