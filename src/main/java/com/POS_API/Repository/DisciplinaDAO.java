@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface DisciplinaDAO extends JpaRepository<Disciplina,String> {
     Optional<Disciplina> findDisciplinaByCod(String cod);
     List<Disciplina> findByTitular_Id(int profesorId);
+    int countByCodStartingWith(String codPrefix);
 }
