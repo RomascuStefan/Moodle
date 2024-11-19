@@ -1,5 +1,6 @@
 package com.POS_API.Controller;
 
+import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Model.Disciplina;
@@ -113,17 +114,17 @@ public class ProfesorController {
     }
 
     @GetMapping("/{id}/lectures")
-    public ResponseEntity<CollectionModel<EntityModel<Disciplina>>> findDisciplinaByProfesorId(@PathVariable int id) {
+    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@PathVariable int id) {
         int profId = profesorService.findProfesorById(id).getId();
 
-        List<Disciplina> discipline = disciplinaService.findDisciplinaByProfesorId(profId);
+        List<DisciplinaDTO> discipline = disciplinaService.findDisciplinaByProfesorId(profId);
 
-        List<EntityModel<Disciplina>> disciplinaModels = discipline.stream()
-                .map(disciplina -> EntityModel.of(disciplina,
-                        linkTo(methodOn(ProfesorController.class).findDisciplinaByProfesorId(id)).withSelfRel()))
+        List<EntityModel<DisciplinaDTO>> disciplinaModels = discipline.stream()
+                .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
+                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(disciplinaDTO.getCod())).withSelfRel()))
                 .collect(Collectors.toList());
 
-        CollectionModel<EntityModel<Disciplina>> collectionModel = CollectionModel.of(disciplinaModels,
+        CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplinaModels,
                 linkTo(methodOn(ProfesorController.class).findProfesorById(id)).withRel("profesor"),
                 linkTo(methodOn(ProfesorController.class).findAllProfesori(null, null,null,null,null)).withRel("allProfessors"));
 
@@ -131,10 +132,15 @@ public class ProfesorController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfesorDTO> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
+    public ResponseEntity<EntityModel<ProfesorDTO>> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
         ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
-        return new ResponseEntity<>(savedProfesor, HttpStatus.CREATED);
 
+        EntityModel<ProfesorDTO> profesorModel = EntityModel.of(savedProfesor,
+                linkTo(methodOn(ProfesorController.class).findProfesorById(savedProfesor.getId())).withSelfRel(),
+                linkTo(methodOn(ProfesorController.class).findAllProfesori(null, null, null, null, null)).withRel("all-professors")
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(profesorModel);
     }
 }
 
