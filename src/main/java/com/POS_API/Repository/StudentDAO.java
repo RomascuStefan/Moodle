@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface StudentDAO extends JpaRepository<Student,Integer> {
 
     Optional<Student> findStudentById(int id);
+    Boolean existsByEmail(String email);
 
 }
