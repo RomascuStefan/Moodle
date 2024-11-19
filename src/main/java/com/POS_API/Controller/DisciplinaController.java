@@ -1,8 +1,12 @@
 package com.POS_API.Controller;
 
 import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Helper.HelperFunctions;
+import com.POS_API.Mapper.ProfesorMapper;
+import com.POS_API.Model.Profesor;
 import com.POS_API.Service.DisciplinaService;
+import com.POS_API.Service.ProfesorService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -22,10 +26,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class DisciplinaController {
 
     private final DisciplinaService disciplinaService;
+    private final ProfesorService profesorService;
 
     @Autowired
-    public DisciplinaController(DisciplinaService disciplinaService) {
+    public DisciplinaController(DisciplinaService disciplinaService, ProfesorService profesorService) {
         this.disciplinaService = disciplinaService;
+        this.profesorService = profesorService;
     }
 
     @GetMapping
@@ -94,4 +100,21 @@ public class DisciplinaController {
 
         return ResponseEntity.ok(disciplinaModel);
     }
+
+    @PostMapping
+    public ResponseEntity<EntityModel<DisciplinaDTO>> addDisciplina(@RequestBody @Valid DisciplinaDTO disciplinaDTO) {
+        int titularId = HelperFunctions.stringToInt(disciplinaDTO.getTitularId(), "Titular ID");
+
+        ProfesorDTO titular = profesorService.findProfesorById(titularId);
+
+
+        DisciplinaDTO savedDisciplina = disciplinaService.addDisciplina(disciplinaDTO, titular);
+
+        EntityModel<DisciplinaDTO> disciplinaModel = EntityModel.of(savedDisciplina,
+                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(savedDisciplina.getCod())).withSelfRel(),
+                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null)).withRel("all-lectures"));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaModel);
+    }
+
 }
