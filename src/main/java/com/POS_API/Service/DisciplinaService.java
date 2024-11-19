@@ -2,6 +2,7 @@ package com.POS_API.Service;
 
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.Advice.Exception.UniqueKeyException;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Mapper.DisciplinaMapper;
@@ -79,12 +80,17 @@ public class DisciplinaService {
     }
 
     public DisciplinaDTO addDisciplina(DisciplinaDTO disciplinaDTO, ProfesorDTO titularDTO) {
+
         String codPrefix = DisciplinaMapper.getPrefix(disciplinaDTO);
 
         int nrOrdin = getNumarOrdin(codPrefix);
 
         Profesor titular = ProfesorMapper.toEntity(titularDTO);
         Disciplina disciplina = DisciplinaMapper.toEntity(disciplinaDTO, nrOrdin, titular);
+
+        if(disciplinaRepo.existsByNumeDisciplinaAndAnStudiu(disciplina.getNumeDisciplina(),disciplina.getAnStudiu())){
+            throw new UniqueKeyException("Disciplina", disciplina.getNumeDisciplina()+" predat in anul de studii: "+disciplina.getAnStudiu());
+        }
 
         return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
     }
