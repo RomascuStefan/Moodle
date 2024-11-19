@@ -3,10 +3,13 @@ package com.POS_API.Service;
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Mapper.DisciplinaMapper;
+import com.POS_API.Mapper.ProfesorMapper;
 import com.POS_API.Model.Disciplina;
 import com.POS_API.Model.Enums.CategorieDisciplina;
 import com.POS_API.Model.Enums.TipDisciplina;
+import com.POS_API.Model.Profesor;
 import com.POS_API.Model.Student;
 import com.POS_API.Repository.DisciplinaDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +74,20 @@ public class DisciplinaService {
                 .collect(Collectors.toList());
     }
 
-    public int getNumarOrdine(String cod)
-    {
+    private int getNumarOrdin(String cod) {
         return disciplinaRepo.countByCodStartingWith(cod);
     }
+
+    public DisciplinaDTO addDisciplina(DisciplinaDTO disciplinaDTO, ProfesorDTO titularDTO) {
+        String codPrefix = DisciplinaMapper.getPrefix(disciplinaDTO);
+
+        int nrOrdin = getNumarOrdin(codPrefix);
+
+        Profesor titular = ProfesorMapper.toEntity(titularDTO);
+        Disciplina disciplina = DisciplinaMapper.toEntity(disciplinaDTO, nrOrdin, titular);
+
+        return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
+    }
+
 
 }
