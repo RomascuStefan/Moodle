@@ -2,11 +2,13 @@ package com.POS_API.Mapper;
 
 import com.POS_API.Advice.Exception.EnumException;
 import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Model.Disciplina;
 import com.POS_API.Model.Enums.CategorieDisciplina;
 import com.POS_API.Model.Enums.TipDisciplina;
 import com.POS_API.Model.Enums.TipExaminare;
+import com.POS_API.Model.Profesor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +16,20 @@ import java.util.List;
 public class DisciplinaMapper {
 
     private static String getDisciplinaCod(DisciplinaDTO disciplinaDTO, int nrOrdin) {
-        String cod = "";
+        return getPrefix(disciplinaDTO) + (nrOrdin + 1);
+    }
 
+    public static String getPrefix(DisciplinaDTO disciplinaDTO) {
         String[] words = disciplinaDTO.getNumeDisciplina().split("\\s+");
         StringBuilder initials = new StringBuilder();
         for (String word : words) {
             initials.append(word.charAt(0));
         }
 
-        String initialeUpperCase = initials.toString().toUpperCase();
-
-        cod = disciplinaDTO.getAnStudiu() + initialeUpperCase + (nrOrdin + 1);
-
-        return cod;
+        return disciplinaDTO.getAnStudiu() + initials.toString().toUpperCase();
     }
 
-    public static Disciplina toEntity(DisciplinaDTO disciplinaDTO, int nrOrdin) {
+    public static Disciplina toEntity(DisciplinaDTO disciplinaDTO, int nrOrdin, Profesor titular) {
         int anStudiu = HelperFunctions.stringToInt(disciplinaDTO.getAnStudiu(), "an studiu");
 
         if (anStudiu < 1 || anStudiu > 4)
@@ -69,6 +69,7 @@ public class DisciplinaMapper {
         disciplina.setCategorieDisciplina(categorieDisciplina);
         disciplina.setTipExaminare(tipExaminare);
         disciplina.setStudenti(disciplinaDTO.getStudenti());
+        disciplina.setTitular(titular);
 
         return disciplina;
     }
@@ -83,6 +84,8 @@ public class DisciplinaMapper {
         disciplinaDTO.setCategorieDisciplina(disciplina.getCategorieDisciplina().toString());
         disciplinaDTO.setTipExaminare(disciplina.getTipExaminare().toString());
         disciplinaDTO.setStudenti(disciplina.getStudenti());
+        disciplinaDTO.setTitularId(Integer.toString(disciplina.getTitular().getId()));
+        disciplinaDTO.setNumeTitular(disciplina.getTitular().getNume() + " " + disciplina.getTitular().getPrenume());
 
         return disciplinaDTO;
     }
