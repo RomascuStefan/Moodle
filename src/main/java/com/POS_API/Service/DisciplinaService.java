@@ -1,5 +1,9 @@
 package com.POS_API.Service;
 
+import com.POS_API.Advice.Exception.RequestParamWrong;
+import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.Mapper.DisciplinaMapper;
 import com.POS_API.Model.Disciplina;
 import com.POS_API.Model.Enums.CategorieDisciplina;
 import com.POS_API.Model.Enums.TipDisciplina;
@@ -23,42 +27,53 @@ public class DisciplinaService {
         this.disciplinaRepo = disciplinaRepo;
     }
 
-    public List<Disciplina> findAllDiscipline() {
-        return disciplinaRepo.findAll();
+    public List<DisciplinaDTO> findAllDiscipline() {
+        return DisciplinaMapper.listToDTO(disciplinaRepo.findAll());
     }
 
-    public Optional<Disciplina> findDisciplinaByCod(String cod) {
-        return disciplinaRepo.findDisciplinaByCod(cod);
+    public DisciplinaDTO findDisciplinaByCod(String cod) {
+        Optional<Disciplina> disciplina = disciplinaRepo.findDisciplinaByCod(cod);
+        if (disciplina.isEmpty()) {
+            throw new ResourceNotFoundException("Disciplina", "cod disciplina", cod);
+        }
+
+        return DisciplinaMapper.toDTO(disciplina.get());
     }
 
-    public List<Disciplina> findDisciplinaByProfesorId(int profesorId) {
-        return disciplinaRepo.findByTitular_Id(profesorId);
+    public List<DisciplinaDTO> findDisciplinaByProfesorId(int profesorId) {
+        List<Disciplina> disciplinaList = disciplinaRepo.findByTitular_Id(profesorId);
+
+        return DisciplinaMapper.listToDTO(disciplinaList);
     }
 
-    public List<Disciplina> filterDisciplineByType(List<Disciplina> discipline, String type) {
+    public List<DisciplinaDTO> filterDisciplineByType(List<DisciplinaDTO> disciplineDTO, String type) {
         try {
             TipDisciplina tipDisciplina = TipDisciplina.valueOf(type);
 
-            return discipline.stream()
-                    .filter(disciplina -> disciplina.getTipDisciplina() == tipDisciplina)
-                    .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
-            System.out.println("Tip disciplina invalid: " + type);
-            return null;
+            throw new RequestParamWrong("tip discilpina", type, "tipul disciplinei este invalid");
         }
+
+        return disciplineDTO.stream()
+                .filter(disciplinaDTO -> disciplinaDTO.getTipDisciplina().equals(type))
+                .collect(Collectors.toList());
     }
 
-    public List<Disciplina> filterDisciplineByCategory(List<Disciplina> discipline, String category) {
+    public List<DisciplinaDTO> filterDisciplineByCategory(List<DisciplinaDTO> discipline, String category) {
         try {
             CategorieDisciplina categorieDisciplina = CategorieDisciplina.valueOf(category);
-
-            return discipline.stream()
-                    .filter(disciplina -> disciplina.getCategorieDisciplina() == categorieDisciplina)
-                    .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
-            System.out.println("Categorie disciplina invalida: " + category);
-            return null;
+            throw new RequestParamWrong("tip discilpina", category, "categoria disciplinei este invalid");
         }
+
+        return discipline.stream()
+                .filter(disciplinaDTO -> disciplinaDTO.getCategorieDisciplina().equals(category))
+                .collect(Collectors.toList());
+    }
+
+    public int getNumarOrdine(String cod)
+    {
+        return disciplinaRepo.countByCodStartingWith(cod);
     }
 
 }

@@ -1,5 +1,12 @@
 package com.POS_API.Service;
 
+import com.POS_API.Advice.Exception.ResourceNotFoundException;
+import com.POS_API.Advice.Exception.UniqueKeyException;
+import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.DTO.StudentDTO;
+import com.POS_API.Mapper.DisciplinaMapper;
+import com.POS_API.Mapper.ProfesorMapper;
+import com.POS_API.Mapper.StudentMapper;
 import com.POS_API.Model.Disciplina;
 import com.POS_API.Model.Student;
 import com.POS_API.Repository.StudentDAO;
@@ -20,18 +27,39 @@ public class StudentService {
         this.studentRepo = studentRepo;
     }
 
-    public List<Student> findAllStudenti() {
-        return studentRepo.findAll();
+    public List<StudentDTO> findAllStudenti() {
+        List<Student> studenti = studentRepo.findAll();
+
+        return StudentMapper.listToDTO(studenti);
     }
 
-    public Optional<Student> findStudentById(int id) {
-        return studentRepo.findStudentById(id);
+    public StudentDTO findStudentById(int id) {
+        Optional<Student> student= studentRepo.findStudentById(id);
+
+        if(student.isEmpty())
+            throw new ResourceNotFoundException("Student","id",id);
+
+        return StudentMapper.toDTO(student.get());
     }
 
-    public List<Disciplina> getDisciplineForStudent(int id) {
-        return studentRepo.findById(id)
-                .map(Student::getDiscipline) // Obține lista de discipline ale studentului
-                .orElse(Collections.emptyList()); // Dacă studentul nu există, returnează o listă goală
+
+    public List<DisciplinaDTO> getDisciplineForStudent(int id) {
+        List<Disciplina> disciplinaList = studentRepo.findById(id)
+                .map(Student::getDiscipline)
+                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", id));
+
+        return DisciplinaMapper.listToDTO(disciplinaList);
+    }
+
+    public StudentDTO addStudent(StudentDTO studentDTO)
+    {
+        Student student = StudentMapper.toEntity(studentDTO);
+
+        if(studentRepo.existsByEmail(student.getEmail())){
+            throw new UniqueKeyException("Studenti", student.getEmail());
+        }
+
+        return StudentMapper.toDTO(studentRepo.save(student));
     }
 
 }
