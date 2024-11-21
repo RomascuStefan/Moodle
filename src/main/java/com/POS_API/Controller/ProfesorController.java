@@ -37,7 +37,7 @@ public class ProfesorController {
         this.disciplinaService = disciplinaService;
     }
 
-    @GetMapping
+    @GetMapping(produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<ProfesorDTO>>> findAllProfesori(
             @RequestParam(required = false) String acad_rank,
             @RequestParam(required = false) String nume,
@@ -98,7 +98,7 @@ public class ProfesorController {
         return ResponseEntity.ok(collectionModel);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<ProfesorDTO>> findProfesorById(@PathVariable int id) {
         ProfesorDTO profesor = profesorService.findProfesorById(id);
 
@@ -113,7 +113,7 @@ public class ProfesorController {
         return ResponseEntity.ok(profesorJSON);
     }
 
-    @GetMapping("/{id}/lectures")
+    @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@PathVariable int id) {
         int profId = profesorService.findProfesorById(id).getId();
 
@@ -131,7 +131,7 @@ public class ProfesorController {
         return ResponseEntity.ok(collectionModel);
     }
 
-    @PostMapping
+    @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<ProfesorDTO>> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
         ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
 

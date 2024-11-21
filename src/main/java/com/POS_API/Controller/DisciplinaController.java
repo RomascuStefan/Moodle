@@ -34,7 +34,7 @@ public class DisciplinaController {
         this.profesorService = profesorService;
     }
 
-    @GetMapping
+    @GetMapping(produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findAllDiscipline(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String category,
@@ -90,7 +90,7 @@ public class DisciplinaController {
     }
 
 
-    @GetMapping("/{cod}")
+    @GetMapping(value = "/{cod}", produces = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod) {
         DisciplinaDTO disciplina = disciplinaService.findDisciplinaByCod(cod);
 
@@ -101,7 +101,7 @@ public class DisciplinaController {
         return ResponseEntity.ok(disciplinaModel);
     }
 
-    @PostMapping
+    @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> addDisciplina(@RequestBody @Valid DisciplinaDTO disciplinaDTO) {
         int titularId = HelperFunctions.stringToInt(disciplinaDTO.getTitularId(), "Titular ID");
 

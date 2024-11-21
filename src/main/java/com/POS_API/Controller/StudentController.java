@@ -29,7 +29,7 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping
+    @GetMapping(produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents() {
         List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
                 .map(student -> EntityModel.of(student,
@@ -43,7 +43,7 @@ public class StudentController {
         return ResponseEntity.ok(collectionModel);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}",produces = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id) {
         StudentDTO student = studentService.findStudentById(id);
 
@@ -55,7 +55,7 @@ public class StudentController {
         return ResponseEntity.ok(studentModel);
     }
 
-    @GetMapping("/{id}/lectures")
+    @GetMapping(value = "/{id}/lectures",produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent(@PathVariable int id) {
 
         List<EntityModel<DisciplinaDTO>> lectures = studentService.getDisciplineForStudent(id).stream()
@@ -69,7 +69,7 @@ public class StudentController {
         return ResponseEntity.ok(collectionModel);
     }
 
-    @PostMapping
+    @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> addStudent(@RequestBody @Valid StudentDTO studentDTO) {
         StudentDTO savedStudent = studentService.addStudent(studentDTO);
 
