@@ -33,37 +33,61 @@ public class StudentController {
     public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents() {
         List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
                 .map(student -> EntityModel.of(student,
-                        linkTo(methodOn(StudentController.class).findStudentById(student.getId())).withSelfRel(),
-                        linkTo(methodOn(StudentController.class).getDisciplineForStudent(student.getId())).withRel("lectures")))
+                        linkTo(methodOn(StudentController.class)
+                                .findStudentById(student.getId()))
+                                .withSelfRel()
+                                .withType("GET"),
+                        linkTo(methodOn(StudentController.class)
+                                .getDisciplineForStudent(student.getId()))
+                                .withRel("lectures")
+                                .withType("GET")))
                 .collect(Collectors.toList());
 
-        Link selfLink = linkTo(methodOn(StudentController.class).findAllStudents()).withSelfRel();
+        Link selfLink = linkTo(methodOn(StudentController.class)
+                .findAllStudents())
+                .withSelfRel()
+                .withType("GET");
         CollectionModel<EntityModel<StudentDTO>> collectionModel = CollectionModel.of(students, selfLink);
 
         return ResponseEntity.ok(collectionModel);
     }
 
-    @GetMapping(value = "/{id}",produces = "application/JSON")
+    @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id) {
         StudentDTO student = studentService.findStudentById(id);
 
         EntityModel<StudentDTO> studentModel = EntityModel.of(student,
-                linkTo(methodOn(StudentController.class).findStudentById(id)).withSelfRel(),
-                linkTo(methodOn(StudentController.class).findAllStudents()).withRel("all-students"),
-                linkTo(methodOn(StudentController.class).getDisciplineForStudent(id)).withRel("lectures"));
+                linkTo(methodOn(StudentController.class)
+                        .findStudentById(id))
+                        .withSelfRel()
+                        .withType("GET"),
+                linkTo(methodOn(StudentController.class)
+                        .findAllStudents())
+                        .withRel("all-students")
+                        .withType("GET"),
+                linkTo(methodOn(StudentController.class)
+                        .getDisciplineForStudent(id))
+                        .withRel("lectures")
+                        .withType("GET"));
 
         return ResponseEntity.ok(studentModel);
     }
 
-    @GetMapping(value = "/{id}/lectures",produces = "application/JSON")
+    @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent(@PathVariable int id) {
 
         List<EntityModel<DisciplinaDTO>> lectures = studentService.getDisciplineForStudent(id).stream()
                 .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
-                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(disciplinaDTO.getCod())).withSelfRel()))
+                        linkTo(methodOn(DisciplinaController.class)
+                                .findDisciplinaByCod(disciplinaDTO.getCod()))
+                                .withSelfRel()
+                                .withType("GET")))
                 .collect(Collectors.toList());
 
-        Link selfLink = linkTo(methodOn(StudentController.class).getDisciplineForStudent(id)).withSelfRel();
+        Link selfLink = linkTo(methodOn(StudentController.class)
+                .getDisciplineForStudent(id))
+                .withSelfRel()
+                .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(lectures, selfLink);
 
         return ResponseEntity.ok(collectionModel);
@@ -74,8 +98,14 @@ public class StudentController {
         StudentDTO savedStudent = studentService.addStudent(studentDTO);
 
         EntityModel<StudentDTO> studentModel = EntityModel.of(savedStudent,
-                linkTo(methodOn(StudentController.class).findStudentById(savedStudent.getId())).withSelfRel(),
-                linkTo(methodOn(StudentController.class).findAllStudents()).withRel("all-students"));
+                linkTo(methodOn(StudentController.class)
+                        .findStudentById(savedStudent.getId()))
+                        .withSelfRel()
+                        .withType("POST"),
+                linkTo(methodOn(StudentController.class)
+                        .findAllStudents())
+                        .withRel("all-students")
+                        .withType("GET"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(studentModel);
     }

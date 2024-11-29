@@ -62,41 +62,61 @@ public class DisciplinaController {
 
         List<EntityModel<DisciplinaDTO>> disciplineModels = paginatedDiscipline.stream()
                 .map(disciplina -> EntityModel.of(disciplina,
-                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(disciplina.getCod())).withSelfRel(),
-                        linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, page, items_per_page)).withRel("all-lectures")))
+                        linkTo(methodOn(DisciplinaController.class)
+                                .findDisciplinaByCod(disciplina.getCod()))
+                                .withSelfRel()
+                                .withType("GET"),
+                        linkTo(methodOn(DisciplinaController.class)
+                                .findAllDiscipline(null, null, page, items_per_page))
+                                .withRel("all-lectures")
+                                .withType("GET")))
                 .collect(Collectors.toList());
 
-        Link selfLink = linkTo(methodOn(DisciplinaController.class).findAllDiscipline(type, category, page, items_per_page)).withSelfRel();
+        Link selfLink = linkTo(methodOn(DisciplinaController.class)
+                .findAllDiscipline(type, category, page, items_per_page))
+                .withSelfRel()
+                .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplineModels, selfLink);
 
         collectionModel.add(
-                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(type, category, Integer.toString(integerPage), Integer.toString(integerItemPerPage)))
+                linkTo(methodOn(DisciplinaController.class)
+                        .findAllDiscipline(type, category, Integer.toString(integerPage), Integer.toString(integerItemPerPage)))
                         .withRel("current_page")
+                        .withType("GET")
         );
         if (fromIndex > 0) {
             collectionModel.add(
-                    linkTo(methodOn(DisciplinaController.class).findAllDiscipline(type, category, Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage)))
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findAllDiscipline(type, category, Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage)))
                             .withRel("previous_page")
+                            .withType("GET")
             );
         }
         if (toIndex < totalItems) {
             collectionModel.add(
-                    linkTo(methodOn(DisciplinaController.class).findAllDiscipline(type, category, Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage)))
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findAllDiscipline(type, category, Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage)))
                             .withRel("next_page")
+                            .withType("GET")
             );
         }
 
         return ResponseEntity.ok(collectionModel);
     }
 
-
     @GetMapping(value = "/{cod}", produces = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod) {
         DisciplinaDTO disciplina = disciplinaService.findDisciplinaByCod(cod);
 
         EntityModel<DisciplinaDTO> disciplinaModel = EntityModel.of(disciplina,
-                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod)).withSelfRel(),
-                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null,null,null)).withRel("all-lectures"));
+                linkTo(methodOn(DisciplinaController.class)
+                        .findDisciplinaByCod(cod))
+                        .withSelfRel()
+                        .withType("GET"),
+                linkTo(methodOn(DisciplinaController.class)
+                        .findAllDiscipline(null, null, null, null))
+                        .withRel("all-lectures")
+                        .withType("GET"));
 
         return ResponseEntity.ok(disciplinaModel);
     }
@@ -107,14 +127,18 @@ public class DisciplinaController {
 
         ProfesorDTO titular = profesorService.findProfesorById(titularId);
 
-
         DisciplinaDTO savedDisciplina = disciplinaService.addDisciplina(disciplinaDTO, titular);
 
         EntityModel<DisciplinaDTO> disciplinaModel = EntityModel.of(savedDisciplina,
-                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(savedDisciplina.getCod())).withSelfRel(),
-                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null)).withRel("all-lectures"));
+                linkTo(methodOn(DisciplinaController.class)
+                        .findDisciplinaByCod(savedDisciplina.getCod()))
+                        .withSelfRel()
+                        .withType("POST"),
+                linkTo(methodOn(DisciplinaController.class)
+                        .findAllDiscipline(null, null, null, null))
+                        .withRel("all-lectures")
+                        .withType("GET"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaModel);
     }
-
 }

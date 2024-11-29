@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @RestController
 @RequestMapping("/api/academia/profesori")
 public class ProfesorController {
@@ -57,12 +56,12 @@ public class ProfesorController {
         }
 
         if (an_studiu != null) {
-            profesori= profesorService.filterProfesoriByAnStudii(profesori, an_studiu);
+            profesori = profesorService.filterProfesoriByAnStudii(profesori, an_studiu);
         }
 
         int totalItems = profesori.size();
-        int integerItemPerPage = HelperFunctions.stringToInt(items_per_page,"items_per_page");
-        int integerPage = HelperFunctions.stringToInt(page,"page");
+        int integerItemPerPage = HelperFunctions.stringToInt(items_per_page, "items_per_page");
+        int integerPage = HelperFunctions.stringToInt(page, "page");
 
         int fromIndex = Math.min(integerPage * integerItemPerPage, totalItems);
         int toIndex = Math.min(fromIndex + integerItemPerPage, totalItems);
@@ -71,27 +70,42 @@ public class ProfesorController {
 
         List<EntityModel<ProfesorDTO>> profesorModels = paginatedProfesori.stream()
                 .map(profesor -> EntityModel.of(profesor,
-                        linkTo(methodOn(ProfesorController.class).findProfesorById(profesor.getId())).withSelfRel(),
-                        linkTo(methodOn(ProfesorController.class).findDisciplinaByProfesorId(profesor.getId())).withRel("lectures")))
+                        linkTo(methodOn(ProfesorController.class)
+                                .findProfesorById(profesor.getId()))
+                                .withSelfRel()
+                                .withType("GET"),
+                        linkTo(methodOn(ProfesorController.class)
+                                .findDisciplinaByProfesorId(profesor.getId()))
+                                .withRel("lectures")
+                                .withType("GET")))
                 .collect(Collectors.toList());
 
-        Link selfLink = linkTo(methodOn(ProfesorController.class).findAllProfesori(acad_rank, nume, an_studiu,page,items_per_page)).withSelfRel();
+        Link selfLink = linkTo(methodOn(ProfesorController.class)
+                .findAllProfesori(acad_rank, nume, an_studiu, page, items_per_page))
+                .withSelfRel()
+                .withType("GET");
         CollectionModel<EntityModel<ProfesorDTO>> collectionModel = CollectionModel.of(profesorModels, selfLink);
 
         collectionModel.add(
-                linkTo(methodOn(ProfesorController.class).findAllProfesori(acad_rank, nume, an_studiu,Integer.toString(integerPage), Integer.toString(integerItemPerPage)))
+                linkTo(methodOn(ProfesorController.class)
+                        .findAllProfesori(acad_rank, nume, an_studiu, Integer.toString(integerPage), Integer.toString(integerItemPerPage)))
                         .withRel("current_page")
+                        .withType("GET")
         );
         if (fromIndex > 0) {
             collectionModel.add(
-                    linkTo(methodOn(ProfesorController.class).findAllProfesori(acad_rank, nume, an_studiu,Integer.toString(integerPage-1), Integer.toString(integerItemPerPage)))
+                    linkTo(methodOn(ProfesorController.class)
+                            .findAllProfesori(acad_rank, nume, an_studiu, Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage)))
                             .withRel("previous_page")
+                            .withType("GET")
             );
         }
         if (toIndex < totalItems) {
             collectionModel.add(
-                    linkTo(methodOn(ProfesorController.class).findAllProfesori(acad_rank, nume, an_studiu,Integer.toString(integerPage+1), Integer.toString(integerItemPerPage)))
+                    linkTo(methodOn(ProfesorController.class)
+                            .findAllProfesori(acad_rank, nume, an_studiu, Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage)))
                             .withRel("next_page")
+                            .withType("GET")
             );
         }
 
@@ -104,8 +118,14 @@ public class ProfesorController {
 
         EntityModel<ProfesorDTO> profesorJSON = EntityModel.of(profesor);
 
-        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class).findProfesorById(id)).withSelfRel();
-        Link findDisciplinaLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class).findDisciplinaByProfesorId(id)).withRel("findDisciplinaByProfesorId");
+        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class)
+                        .findProfesorById(id))
+                .withSelfRel()
+                .withType("GET");
+        Link findDisciplinaLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class)
+                        .findDisciplinaByProfesorId(id))
+                .withRel("findDisciplinaByProfesorId")
+                .withType("GET");
 
         profesorJSON.add(selfLink);
         profesorJSON.add(findDisciplinaLink);
@@ -121,12 +141,21 @@ public class ProfesorController {
 
         List<EntityModel<DisciplinaDTO>> disciplinaModels = discipline.stream()
                 .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
-                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(disciplinaDTO.getCod())).withSelfRel()))
+                        linkTo(methodOn(DisciplinaController.class)
+                                .findDisciplinaByCod(disciplinaDTO.getCod()))
+                                .withSelfRel()
+                                .withType("GET")))
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplinaModels,
-                linkTo(methodOn(ProfesorController.class).findProfesorById(id)).withRel("profesor"),
-                linkTo(methodOn(ProfesorController.class).findAllProfesori(null, null,null,null,null)).withRel("allProfessors"));
+                linkTo(methodOn(ProfesorController.class)
+                        .findProfesorById(id))
+                        .withRel("profesor")
+                        .withType("GET"),
+                linkTo(methodOn(ProfesorController.class)
+                        .findAllProfesori(null, null, null, null, null))
+                        .withRel("allProfessors")
+                        .withType("GET"));
 
         return ResponseEntity.ok(collectionModel);
     }
@@ -136,11 +165,15 @@ public class ProfesorController {
         ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
 
         EntityModel<ProfesorDTO> profesorModel = EntityModel.of(savedProfesor,
-                linkTo(methodOn(ProfesorController.class).findProfesorById(savedProfesor.getId())).withSelfRel(),
-                linkTo(methodOn(ProfesorController.class).findAllProfesori(null, null, null, null, null)).withRel("all-professors")
-        );
+                linkTo(methodOn(ProfesorController.class)
+                        .findProfesorById(savedProfesor.getId()))
+                        .withSelfRel()
+                        .withType("POST"),
+                linkTo(methodOn(ProfesorController.class)
+                        .findAllProfesori(null, null, null, null, null))
+                        .withRel("all-professors")
+                        .withType("GET"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(profesorModel);
     }
 }
-
