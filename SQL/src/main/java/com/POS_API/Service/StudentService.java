@@ -12,10 +12,12 @@ import com.POS_API.Model.Student;
 import com.POS_API.Repository.StudentDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -60,6 +62,23 @@ public class StudentService {
         }
 
         return StudentMapper.toDTO(studentRepo.save(student));
+    }
+
+    public List<Student> validateStudents(List<Integer> studentIds) {
+        List<Student> studenti = studentIds.stream()
+                .map(studentId -> studentRepo.findById(studentId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Student", "id", String.valueOf(studentId))))
+                .collect(Collectors.toList());
+
+        return studenti;
+    }
+
+    @Transactional
+    public void addDisciplinaToStudents(Disciplina disciplina, List<Student> studenti){
+        for (Student student : studenti) {
+            student.getDiscipline().add(disciplina);
+            studentRepo.save(student);
+        }
     }
 
 }
