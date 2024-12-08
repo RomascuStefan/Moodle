@@ -15,9 +15,11 @@ import com.POS_API.Model.Student;
 import com.POS_API.Repository.DisciplinaDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -96,4 +98,14 @@ public class DisciplinaService {
     }
 
 
+    @Transactional
+    public Disciplina addStudentsToDisciplina(String cod, List<Student> studenti) {
+        Disciplina disciplina = disciplinaRepo.findDisciplinaByCod(cod)
+                .orElseThrow(() -> new ResourceNotFoundException("Disciplina", "cod", cod));
+
+        disciplina.getStudenti().addAll(studenti);
+        disciplinaRepo.save(disciplina);
+
+        return disciplina;
+    }
 }
