@@ -97,15 +97,4 @@ public class DisciplinaService {
         return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
     }
 
-
-    @Transactional
-    public Disciplina addStudentsToDisciplina(String cod, List<Student> studenti) {
-        Disciplina disciplina = disciplinaRepo.findDisciplinaByCod(cod)
-                .orElseThrow(() -> new ResourceNotFoundException("Disciplina", "cod", cod));
-
-        disciplina.getStudenti().addAll(studenti);
-        disciplinaRepo.save(disciplina);
-
-        return disciplina;
-    }
 }
