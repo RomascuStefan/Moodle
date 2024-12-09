@@ -90,4 +90,17 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // Handle IllegalStateException
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Illegal State");
+        response.put("message", ex.getMessage());
+        response.put("details", "Operation cannot be completed due to a conflict in the current state.");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
 }
