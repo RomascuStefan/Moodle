@@ -63,23 +63,5 @@ public class StudentService {
 
         return StudentMapper.toDTO(studentRepo.save(student));
     }
-
-    public List<Student> validateStudents(List<Integer> studentIds) {
-        List<Student> studenti = studentIds.stream()
-                .map(studentId -> studentRepo.findById(studentId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Student", "id", String.valueOf(studentId))))
-                .collect(Collectors.toList());
-
-        return studenti;
-    }
-
-    @Transactional
-    public void addDisciplinaToStudents(Disciplina disciplina, List<Student> studenti){
-        for (Student student : studenti) {
-            student.getDiscipline().add(disciplina);
-            studentRepo.save(student);
-        }
-    }
-
 }
 
