@@ -180,5 +180,11 @@ public class DisciplinaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaModel);
     }
 
+    @GetMapping("/{cod}/exists")
+    public ResponseEntity<Boolean> existsByCod(@PathVariable String cod) {
+        boolean exists = disciplinaService.existsByCod(cod);
+        return ResponseEntity.ok(exists);
+    }
+
 
 }

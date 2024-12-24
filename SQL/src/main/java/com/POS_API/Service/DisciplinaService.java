@@ -97,4 +97,8 @@ public class DisciplinaService {
         return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
     }
 
+    public boolean existsByCod(String cod) {
+        return disciplinaRepo.existsByCod(cod);
+    }
+
 }

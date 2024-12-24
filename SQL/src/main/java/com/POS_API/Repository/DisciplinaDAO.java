@@ -13,4 +13,5 @@ public interface DisciplinaDAO extends JpaRepository<Disciplina,String> {
     List<Disciplina> findByTitular_Id(int profesorId);
     int countByCodStartingWith(String codPrefix);
     Boolean existsByNumeDisciplinaAndAnStudiu(String nume, int an);
+    Boolean existsByCod(String cod);
 }
