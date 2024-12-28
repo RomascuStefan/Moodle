@@ -103,4 +103,15 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+
+    @ExceptionHandler(MongoServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleMongoServiceException(MongoServiceException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Mongo Service Error");
+        errorResponse.put("details", ex.getResponseBody());
+        errorResponse.put("status", ex.getStatus().value());
+        errorResponse.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
 }
