@@ -1,9 +1,11 @@
 package com.POS_API.Service;
 
+import com.POS_API.Advice.Exception.MongoServiceException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.Advice.Exception.UniqueKeyException;
 import com.POS_API.DTO.DisciplinaDTO;
+import com.POS_API.DTO.MongoAddLectureDTO;
 import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Mapper.DisciplinaMapper;
 import com.POS_API.Mapper.ProfesorMapper;
@@ -11,15 +13,17 @@ import com.POS_API.Model.Disciplina;
 import com.POS_API.Model.Enums.CategorieDisciplina;
 import com.POS_API.Model.Enums.TipDisciplina;
 import com.POS_API.Model.Profesor;
-import com.POS_API.Model.Student;
 import com.POS_API.Repository.DisciplinaDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,10 +31,15 @@ import java.util.stream.Collectors;
 public class DisciplinaService {
 
     private final DisciplinaDAO disciplinaRepo;
+    private final RestTemplate restTemplate;
+
+    @Value("${mongo.service.url}")
+    private String mongoServiceUrl;
 
     @Autowired
-    public DisciplinaService(DisciplinaDAO disciplinaRepo) {
+    public DisciplinaService(DisciplinaDAO disciplinaRepo, RestTemplate restTemplate) {
         this.disciplinaRepo = disciplinaRepo;
+        this.restTemplate = restTemplate;
     }
 
     public List<DisciplinaDTO> findAllDiscipline() {
@@ -81,6 +90,7 @@ public class DisciplinaService {
         return disciplinaRepo.countByCodStartingWith(cod);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public DisciplinaDTO addDisciplina(DisciplinaDTO disciplinaDTO, ProfesorDTO titularDTO) {
 
         String codPrefix = DisciplinaMapper.getPrefix(disciplinaDTO);
@@ -90,9 +100,19 @@ public class DisciplinaService {
         Profesor titular = ProfesorMapper.toEntity(titularDTO);
         Disciplina disciplina = DisciplinaMapper.toEntity(disciplinaDTO, nrOrdin, titular);
 
-        if(disciplinaRepo.existsByNumeDisciplinaAndAnStudiu(disciplina.getNumeDisciplina(),disciplina.getAnStudiu())){
-            throw new UniqueKeyException("Disciplina", disciplina.getNumeDisciplina()+" predat in anul de studii: "+disciplina.getAnStudiu());
+        if (disciplinaRepo.existsByNumeDisciplinaAndAnStudiu(disciplina.getNumeDisciplina(), disciplina.getAnStudiu())) {
+            throw new UniqueKeyException("Disciplina", disciplina.getNumeDisciplina() + " predat in anul de studii: " + disciplina.getAnStudiu());
         }
+
+
+        MongoAddLectureDTO requestBody = new MongoAddLectureDTO();
+        requestBody.setCodMaterie(disciplina.getCod());
+        requestBody.setExaminare(disciplina.getTipExaminare().toString());
+
+        String url = mongoServiceUrl + "/add";
+        ResponseEntity<Void> mongoResponse = restTemplate.postForEntity(url, requestBody, Void.class);
+        if(mongoResponse.getStatusCode() != HttpStatus.CREATED)
+            throw new MongoServiceException(mongoResponse.getStatusCode(),mongoResponse.toString());
 
         return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
     }
