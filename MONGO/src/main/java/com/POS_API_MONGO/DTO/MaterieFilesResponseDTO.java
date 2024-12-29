@@ -1,4 +1,4 @@
-package com.POS_API_MONGO.Model.DTO;
+package com.POS_API_MONGO.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
