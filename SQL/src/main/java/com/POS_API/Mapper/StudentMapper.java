@@ -2,6 +2,7 @@ package com.POS_API.Mapper;
 
 import com.POS_API.Advice.Exception.EnumException;
 import com.POS_API.DTO.StudentDTO;
+import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Model.Enums.CicluStudii;
 import com.POS_API.Model.Student;
 
@@ -17,6 +18,8 @@ public class StudentMapper {
             throw new EnumException("ciclu studii", studentDTO.getCicluStudii());
         }
 
+        int anStudiuInt = HelperFunctions.stringToInt(studentDTO.getAnStudiu(),"an studiu");
+
         Student student = new Student();
 
         student.setId(studentDTO.getId());
@@ -24,7 +27,7 @@ public class StudentMapper {
         student.setPrenume(studentDTO.getPrenume());
         student.setEmail(studentDTO.getEmail());
         student.setCicluStudii(cicluStudii);
-        student.setAnStudiu(studentDTO.getAnStudiu());
+        student.setAnStudiu(anStudiuInt);
         student.setGrupa(studentDTO.getGrupa());
         student.setDiscipline(studentDTO.getDiscipline());
 
@@ -39,7 +42,7 @@ public class StudentMapper {
         studentDTO.setPrenume(student.getPrenume());
         studentDTO.setEmail(student.getEmail());
         studentDTO.setCicluStudii(student.getCicluStudii().toString());
-        studentDTO.setAnStudiu(student.getAnStudiu());
+        studentDTO.setAnStudiu(Integer.toString(student.getAnStudiu()));
         studentDTO.setGrupa(student.getGrupa());
         studentDTO.setDiscipline(student.getDiscipline());
 
