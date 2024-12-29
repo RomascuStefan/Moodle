@@ -3,11 +3,10 @@ package com.POS_API.Controller;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Helper.HelperFunctions;
-import com.POS_API.Model.Disciplina;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-import com.POS_API.Model.Profesor;
+import com.POS_API.Service.AuthService;
 import com.POS_API.Service.DisciplinaService;
 import com.POS_API.Service.ProfesorService;
 import jakarta.validation.Valid;
@@ -29,11 +28,12 @@ public class ProfesorController {
 
     private final ProfesorService profesorService;
     private final DisciplinaService disciplinaService;
-
+    private final AuthService authService;
     @Autowired
-    public ProfesorController(ProfesorService profesorService, DisciplinaService disciplinaService) {
+    public ProfesorController(ProfesorService profesorService, DisciplinaService disciplinaService, AuthService authService) {
         this.profesorService = profesorService;
         this.disciplinaService = disciplinaService;
+        this.authService = authService;
     }
 
     @GetMapping(produces = "application/JSON")
@@ -163,6 +163,7 @@ public class ProfesorController {
     @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<ProfesorDTO>> addProfesor(@RequestBody @Valid ProfesorDTO profesorDTO) {
         ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
+        authService.registerUser(savedProfesor.getEmail(),profesorDTO.getPassword(),"profesor");
 
         EntityModel<ProfesorDTO> profesorModel = EntityModel.of(savedProfesor,
                 linkTo(methodOn(ProfesorController.class)

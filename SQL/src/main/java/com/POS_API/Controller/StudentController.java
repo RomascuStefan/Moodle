@@ -2,7 +2,7 @@ package com.POS_API.Controller;
 
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
-import com.POS_API.Model.Disciplina;
+import com.POS_API.Service.AuthService;
 import com.POS_API.Service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +16,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/student")
 public class StudentController {
 
     private final StudentService studentService;
+    private final AuthService authService;
 
     @Autowired
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentService studentService, AuthService authService) {
         this.studentService = studentService;
+        this.authService = authService;
     }
 
     @GetMapping(produces = "application/JSON")
@@ -96,6 +99,8 @@ public class StudentController {
     @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> addStudent(@RequestBody @Valid StudentDTO studentDTO) {
         StudentDTO savedStudent = studentService.addStudent(studentDTO);
+        authService.registerUser(savedStudent.getEmail(), studentDTO.getPassword(), "student");
+
 
         EntityModel<StudentDTO> studentModel = EntityModel.of(savedStudent,
                 linkTo(methodOn(StudentController.class)
@@ -106,7 +111,6 @@ public class StudentController {
                         .findAllStudents())
                         .withRel("all-students")
                         .withType("GET"));
-
         return ResponseEntity.status(HttpStatus.CREATED).body(studentModel);
     }
 }
