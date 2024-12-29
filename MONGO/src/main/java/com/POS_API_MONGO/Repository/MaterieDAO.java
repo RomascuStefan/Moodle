@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface MaterieDAO extends MongoRepository<Materie, String> {
     Optional<Materie> findByCodMaterie(String codMaterie);
+    Boolean existsByCodMaterie(String codMaterie);
 }
