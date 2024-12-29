@@ -2,7 +2,6 @@ package com.POS_API_MONGO.Model;
 
 import com.POS_API_MONGO.Model.POJO.Fisier;
 import com.POS_API_MONGO.Model.POJO.Test;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,4 +33,24 @@ public class Materie {
     @Field("probe_examinare")
     private List<Test> probeExaminare = new ArrayList<>();
 
+    public boolean isPondereValid() {
+        double sum = 0.0;
+
+        for (Test test : probeExaminare) {
+            sum += test.getPondere();
+        }
+
+        return sum == 1.;
+    }
+
+    public String getSumaPonderi()
+    {
+        double sum = 0.0;
+
+        for (Test test : probeExaminare) {
+            sum += test.getPondere();
+        }
+
+        return String.format("%.2f", sum * 100) + "%";
+    }
 }
