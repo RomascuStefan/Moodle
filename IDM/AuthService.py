@@ -70,7 +70,6 @@ class AuthService(auth_service_pb2_grpc.AuthServiceServicer):
         try:
             payload = JWTManager.verify_token(token)
             email = payload['email']
-            role = payload['role']
 
             user = User.get(User.email == email)
             return auth_service_pb2.GetUserDetailsResponse(
