@@ -48,6 +48,7 @@ message VerifyTokenRequest {
 message VerifyTokenResponse {
   bool valid = 1;
   string message = 2;
+  Role role =3;
 }
 
 enum Role {

@@ -24,15 +24,15 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x61uth_service.proto\x12\x04\x61uth\"P\n\x13RegisterUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x18\n\x04role\x18\x03 \x01(\x0e\x32\n.auth.Role\"8\n\x14RegisterUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\":\n\x17\x41uthenticateUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"K\n\x18\x41uthenticateUserResponse\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\"&\n\x15GetUserDetailsRequest\x12\r\n\x05token\x18\x01 \x01(\t\"c\n\x16GetUserDetailsResponse\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x18\n\x04role\x18\x02 \x01(\x0e\x32\n.auth.Role\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x0f\n\x07message\x18\x04 \x01(\t\"#\n\x12VerifyTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"5\n\x13VerifyTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t*-\n\x04Role\x12\n\n\x06\x61\x64mion\x10\x00\x12\x0c\n\x08profesor\x10\x01\x12\x0b\n\x07student\x10\x02\x32\xb8\x02\n\x0b\x41uthService\x12\x45\n\x0cRegisterUser\x12\x19.auth.RegisterUserRequest\x1a\x1a.auth.RegisterUserResponse\x12Q\n\x10\x41uthenticateUser\x12\x1d.auth.AuthenticateUserRequest\x1a\x1e.auth.AuthenticateUserResponse\x12K\n\x0eGetUserDetails\x12\x1b.auth.GetUserDetailsRequest\x1a\x1c.auth.GetUserDetailsResponse\x12\x42\n\x0bVerifyToken\x12\x18.auth.VerifyTokenRequest\x1a\x19.auth.VerifyTokenResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x61uth_service.proto\x12\x04\x61uth\"P\n\x13RegisterUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x18\n\x04role\x18\x03 \x01(\x0e\x32\n.auth.Role\"8\n\x14RegisterUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\":\n\x17\x41uthenticateUserRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"K\n\x18\x41uthenticateUserResponse\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\"&\n\x15GetUserDetailsRequest\x12\r\n\x05token\x18\x01 \x01(\t\"c\n\x16GetUserDetailsResponse\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x18\n\x04role\x18\x02 \x01(\x0e\x32\n.auth.Role\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x0f\n\x07message\x18\x04 \x01(\t\"#\n\x12VerifyTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"O\n\x13VerifyTokenResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x18\n\x04role\x18\x03 \x01(\x0e\x32\n.auth.Role*,\n\x04Role\x12\t\n\x05\x61\x64min\x10\x00\x12\x0c\n\x08profesor\x10\x01\x12\x0b\n\x07student\x10\x02\x32\xb8\x02\n\x0b\x41uthService\x12\x45\n\x0cRegisterUser\x12\x19.auth.RegisterUserRequest\x1a\x1a.auth.RegisterUserResponse\x12Q\n\x10\x41uthenticateUser\x12\x1d.auth.AuthenticateUserRequest\x1a\x1e.auth.AuthenticateUserResponse\x12K\n\x0eGetUserDetails\x12\x1b.auth.GetUserDetailsRequest\x1a\x1c.auth.GetUserDetailsResponse\x12\x42\n\x0bVerifyToken\x12\x18.auth.VerifyTokenRequest\x1a\x19.auth.VerifyTokenResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ROLE']._serialized_start=538
-  _globals['_ROLE']._serialized_end=583
+  _globals['_ROLE']._serialized_start=564
+  _globals['_ROLE']._serialized_end=608
   _globals['_REGISTERUSERREQUEST']._serialized_start=28
   _globals['_REGISTERUSERREQUEST']._serialized_end=108
   _globals['_REGISTERUSERRESPONSE']._serialized_start=110
@@ -48,7 +48,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_VERIFYTOKENREQUEST']._serialized_start=446
   _globals['_VERIFYTOKENREQUEST']._serialized_end=481
   _globals['_VERIFYTOKENRESPONSE']._serialized_start=483
-  _globals['_VERIFYTOKENRESPONSE']._serialized_end=536
-  _globals['_AUTHSERVICE']._serialized_start=586
-  _globals['_AUTHSERVICE']._serialized_end=898
+  _globals['_VERIFYTOKENRESPONSE']._serialized_end=562
+  _globals['_AUTHSERVICE']._serialized_start=611
+  _globals['_AUTHSERVICE']._serialized_end=923
 # @@protoc_insertion_point(module_scope)

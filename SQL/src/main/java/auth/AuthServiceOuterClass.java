@@ -4917,6 +4917,15 @@ public final class AuthServiceOuterClass {
      */
     com.google.protobuf.ByteString
         getMessageBytes();
+
+    /**
+     * <code>.auth.Role role = 3;</code>
+     */
+    int getRoleValue();
+    /**
+     * <code>.auth.Role role = 3;</code>
+     */
+    auth.AuthServiceOuterClass.Role getRole();
   }
   /**
    * Protobuf type {@code auth.VerifyTokenResponse}
@@ -4933,6 +4942,7 @@ public final class AuthServiceOuterClass {
     private VerifyTokenResponse() {
       valid_ = false;
       message_ = "";
+      role_ = 0;
     }
 
     @java.lang.Override
@@ -4968,6 +4978,12 @@ public final class AuthServiceOuterClass {
               java.lang.String s = input.readStringRequireUtf8();
 
               message_ = s;
+              break;
+            }
+            case 24: {
+              int rawValue = input.readEnum();
+
+              role_ = rawValue;
               break;
             }
             default: {
@@ -5045,6 +5061,23 @@ public final class AuthServiceOuterClass {
       }
     }
 
+    public static final int ROLE_FIELD_NUMBER = 3;
+    private int role_;
+    /**
+     * <code>.auth.Role role = 3;</code>
+     */
+    public int getRoleValue() {
+      return role_;
+    }
+    /**
+     * <code>.auth.Role role = 3;</code>
+     */
+    public auth.AuthServiceOuterClass.Role getRole() {
+      @SuppressWarnings("deprecation")
+      auth.AuthServiceOuterClass.Role result = auth.AuthServiceOuterClass.Role.valueOf(role_);
+      return result == null ? auth.AuthServiceOuterClass.Role.UNRECOGNIZED : result;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -5065,6 +5098,9 @@ public final class AuthServiceOuterClass {
       if (!getMessageBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, message_);
       }
+      if (role_ != auth.AuthServiceOuterClass.Role.admin.getNumber()) {
+        output.writeEnum(3, role_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -5080,6 +5116,10 @@ public final class AuthServiceOuterClass {
       }
       if (!getMessageBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, message_);
+      }
+      if (role_ != auth.AuthServiceOuterClass.Role.admin.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(3, role_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5101,6 +5141,7 @@ public final class AuthServiceOuterClass {
           == other.getValid());
       result = result && getMessage()
           .equals(other.getMessage());
+      result = result && role_ == other.role_;
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -5117,6 +5158,8 @@ public final class AuthServiceOuterClass {
           getValid());
       hash = (37 * hash) + MESSAGE_FIELD_NUMBER;
       hash = (53 * hash) + getMessage().hashCode();
+      hash = (37 * hash) + ROLE_FIELD_NUMBER;
+      hash = (53 * hash) + role_;
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -5254,6 +5297,8 @@ public final class AuthServiceOuterClass {
 
         message_ = "";
 
+        role_ = 0;
+
         return this;
       }
 
@@ -5282,6 +5327,7 @@ public final class AuthServiceOuterClass {
         auth.AuthServiceOuterClass.VerifyTokenResponse result = new auth.AuthServiceOuterClass.VerifyTokenResponse(this);
         result.valid_ = valid_;
         result.message_ = message_;
+        result.role_ = role_;
         onBuilt();
         return result;
       }
@@ -5336,6 +5382,9 @@ public final class AuthServiceOuterClass {
         if (!other.getMessage().isEmpty()) {
           message_ = other.message_;
           onChanged();
+        }
+        if (other.role_ != 0) {
+          setRoleValue(other.getRoleValue());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -5460,6 +5509,51 @@ public final class AuthServiceOuterClass {
         onChanged();
         return this;
       }
+
+      private int role_ = 0;
+      /**
+       * <code>.auth.Role role = 3;</code>
+       */
+      public int getRoleValue() {
+        return role_;
+      }
+      /**
+       * <code>.auth.Role role = 3;</code>
+       */
+      public Builder setRoleValue(int value) {
+        role_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.auth.Role role = 3;</code>
+       */
+      public auth.AuthServiceOuterClass.Role getRole() {
+        @SuppressWarnings("deprecation")
+        auth.AuthServiceOuterClass.Role result = auth.AuthServiceOuterClass.Role.valueOf(role_);
+        return result == null ? auth.AuthServiceOuterClass.Role.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>.auth.Role role = 3;</code>
+       */
+      public Builder setRole(auth.AuthServiceOuterClass.Role value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        role_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.auth.Role role = 3;</code>
+       */
+      public Builder clearRole() {
+        
+        role_ = 0;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -5574,17 +5668,18 @@ public final class AuthServiceOuterClass {
       "sResponse\022\r\n\005email\030\001 \001(\t\022\030\n\004role\030\002 \001(\0162\n" +
       ".auth.Role\022\017\n\007success\030\003 \001(\010\022\017\n\007message\030\004" +
       " \001(\t\"#\n\022VerifyTokenRequest\022\r\n\005token\030\001 \001(" +
-      "\t\"5\n\023VerifyTokenResponse\022\r\n\005valid\030\001 \001(\010\022" +
-      "\017\n\007message\030\002 \001(\t*,\n\004Role\022\t\n\005admin\020\000\022\014\n\010p" +
-      "rofesor\020\001\022\013\n\007student\020\0022\270\002\n\013AuthService\022E" +
-      "\n\014RegisterUser\022\031.auth.RegisterUserReques" +
-      "t\032\032.auth.RegisterUserResponse\022Q\n\020Authent" +
-      "icateUser\022\035.auth.AuthenticateUserRequest" +
-      "\032\036.auth.AuthenticateUserResponse\022K\n\016GetU" +
-      "serDetails\022\033.auth.GetUserDetailsRequest\032" +
-      "\034.auth.GetUserDetailsResponse\022B\n\013VerifyT" +
-      "oken\022\030.auth.VerifyTokenRequest\032\031.auth.Ve" +
-      "rifyTokenResponseb\006proto3"
+      "\t\"O\n\023VerifyTokenResponse\022\r\n\005valid\030\001 \001(\010\022" +
+      "\017\n\007message\030\002 \001(\t\022\030\n\004role\030\003 \001(\0162\n.auth.Ro" +
+      "le*,\n\004Role\022\t\n\005admin\020\000\022\014\n\010profesor\020\001\022\013\n\007s" +
+      "tudent\020\0022\270\002\n\013AuthService\022E\n\014RegisterUser" +
+      "\022\031.auth.RegisterUserRequest\032\032.auth.Regis" +
+      "terUserResponse\022Q\n\020AuthenticateUser\022\035.au" +
+      "th.AuthenticateUserRequest\032\036.auth.Authen" +
+      "ticateUserResponse\022K\n\016GetUserDetails\022\033.a" +
+      "uth.GetUserDetailsRequest\032\034.auth.GetUser" +
+      "DetailsResponse\022B\n\013VerifyToken\022\030.auth.Ve" +
+      "rifyTokenRequest\032\031.auth.VerifyTokenRespo" +
+      "nseb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5645,7 +5740,7 @@ public final class AuthServiceOuterClass {
     internal_static_auth_VerifyTokenResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_auth_VerifyTokenResponse_descriptor,
-        new java.lang.String[] { "Valid", "Message", });
+        new java.lang.String[] { "Valid", "Message", "Role", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
