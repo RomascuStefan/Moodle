@@ -80,14 +80,14 @@ class AuthService(auth_service_pb2_grpc.AuthServiceServicer):
             )
         except Exception as e:
             return auth_service_pb2.GetUserDetailsResponse(
-                email="",
-                role="",
+                role=auth_service_pb2.student, #daca nu adaug rol are by default admin. Chiar daca e invalid token nu vreau sa trimit rolul de admin in exterior
                 success=False,
-                message=str(e)
+                message="token invalid"
             )
 
     def VerifyToken(self, request, context):
         token = request.token
+        print(f"Token primit pe server IDM: {token}")
         try:
             payload = JWTManager.verify_token(token)
             return auth_service_pb2.VerifyTokenResponse(
@@ -96,6 +96,7 @@ class AuthService(auth_service_pb2_grpc.AuthServiceServicer):
                 role=payload['role']
             )
         except Exception as e:
+            print(f"Eroare la validarea tokenului: {e}")
             return auth_service_pb2.VerifyTokenResponse(
                 valid=False,
                 message=str(e)
