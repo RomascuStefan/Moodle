@@ -2,6 +2,7 @@ package com.POS_API.Controller;
 
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
+import com.POS_API.DTO.UserDetailDTO;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.StudentService;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public class StudentController {
         List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
                 .map(student -> EntityModel.of(student,
                         linkTo(methodOn(StudentController.class)
-                                .findStudentById(student.getId(),null))
+                                .findStudentById(student.getId(), null))
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(StudentController.class)
@@ -75,7 +77,7 @@ public class StudentController {
 
         EntityModel<StudentDTO> studentModel = EntityModel.of(student,
                 linkTo(methodOn(StudentController.class)
-                        .findStudentById(id,null))
+                        .findStudentById(id, null))
                         .withSelfRel()
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
@@ -97,17 +99,30 @@ public class StudentController {
 
 
         String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN, PROFESOR, STUDENT));
+        UserDetailDTO userDetail = authService.getUserDetail(token, List.of(ADMIN, PROFESOR, STUDENT));
 
-        //if self
+        List<EntityModel<DisciplinaDTO>> lectures = new ArrayList<>();
 
-        List<EntityModel<DisciplinaDTO>> lectures = studentService.getDisciplineForStudent(id).stream()
-                .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
-                        linkTo(methodOn(DisciplinaController.class)
-                                .findDisciplinaByCod(disciplinaDTO.getCod(),null))
-                                .withSelfRel()
-                                .withType("GET")))
-                .collect(Collectors.toList());
+        if (userDetail.getRole() == ADMIN || (userDetail.getRole() == STUDENT && studentService.isSelfReq(id, userDetail.getEmail()))) {
+            lectures = studentService.getDisciplineForStudent(id).stream()
+                    .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
+                            linkTo(methodOn(DisciplinaController.class)
+                                    .findDisciplinaByCod(disciplinaDTO.getCod(), null))
+                                    .withSelfRel()
+                                    .withType("GET")))
+                    .collect(Collectors.toList());
+        }
+
+        if (userDetail.getRole() == PROFESOR) {
+            lectures = studentService.getDisciplineForStudentByProfessor(id,userDetail.getEmail()).stream()
+                    .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
+                            linkTo(methodOn(DisciplinaController.class)
+                                    .findDisciplinaByCod(disciplinaDTO.getCod(), null))
+                                    .withSelfRel()
+                                    .withType("GET")))
+                    .collect(Collectors.toList());
+        }
+
 
         Link selfLink = linkTo(methodOn(StudentController.class)
                 .getDisciplineForStudent(id, null))
@@ -133,7 +148,7 @@ public class StudentController {
 
         EntityModel<StudentDTO> studentModel = EntityModel.of(savedStudent,
                 linkTo(methodOn(StudentController.class)
-                        .findStudentById(savedStudent.getId(),null))
+                        .findStudentById(savedStudent.getId(), null))
                         .withSelfRel()
                         .withType("POST"),
                 linkTo(methodOn(StudentController.class)
