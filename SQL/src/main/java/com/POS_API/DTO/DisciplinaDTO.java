@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 public class DisciplinaDTO {
 
-    @JsonIgnore
     private String cod;
 
     @NotBlank(message = "Disciplina trebuie sa aiba titular")

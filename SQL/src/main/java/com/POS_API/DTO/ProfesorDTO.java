@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ProfesorDTO {
-    @JsonIgnore
+
     private int id;
 
     @NotBlank(message = "Numele nu poate fi gol.")
