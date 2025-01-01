@@ -28,19 +28,15 @@ public class AuthService {
         throw new IdmServiceException(HttpStatus.INTERNAL_SERVER_ERROR, response.getMessage());
     }
 
-    private AuthServiceOuterClass.Role verifyJwt(String token) {
-        AuthServiceOuterClass.VerifyTokenResponse response = authServiceGrpcClient.verifyToken(token);
-
-        if (!response.getValid())
-            throw new IdmServiceException(HttpStatus.UNAUTHORIZED, response.getMessage());
-
-        return response.getRole();
-    }
-
-    public UserDetailDTO getUserDetail(String token) {
+    public UserDetailDTO getUserDetail(String token, List<AuthServiceOuterClass.Role> allowedRoles) {
         AuthServiceOuterClass.GetUserDetailsResponse response = authServiceGrpcClient.getUserDetails(token);
+
         if (!response.getSuccess())
             throw new IdmServiceException(HttpStatus.UNAUTHORIZED, response.getMessage());
+
+        if(!allowedRoles.contains(response.getRole()))
+            throw new IdmServiceException(HttpStatus.FORBIDDEN, "Not allowed");
+
 
         UserDetailDTO userDetail = new UserDetailDTO();
         userDetail.setEmail(response.getEmail());
@@ -50,11 +46,16 @@ public class AuthService {
     }
 
     public AuthServiceOuterClass.Role verifyRequest(String token, List<AuthServiceOuterClass.Role> allowedRoles) {
-        AuthServiceOuterClass.Role role = verifyJwt(token);
+        AuthServiceOuterClass.VerifyTokenResponse response = authServiceGrpcClient.verifyToken(token);
 
-        if (!allowedRoles.contains(role))
+        if (!response.getValid())
+            throw new IdmServiceException(HttpStatus.UNAUTHORIZED, response.getMessage());
+
+        if (!allowedRoles.contains(response.getRole()))
             throw new IdmServiceException(HttpStatus.FORBIDDEN, "Not allowed");
 
-        return role;
+        return response.getRole();
     }
+
+
 }
