@@ -112,17 +112,17 @@ public class ExceptionManager {
         errorResponse.put("status", ex.getStatus().value());
         errorResponse.put("timestamp", LocalDateTime.now());
 
-        return new ResponseEntity<>(errorResponse, ex.getStatus());
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+
     }
 
     @ExceptionHandler(IdmServiceException.class)
-    public ResponseEntity<Map<String, Object>> handleIdmServiceException(MongoServiceException ex) {
+    public ResponseEntity<Map<String, Object>> handleIdmServiceException(IdmServiceException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Idm Service Error");
         errorResponse.put("details", ex.getResponseBody());
         errorResponse.put("status", ex.getStatus().value());
         errorResponse.put("timestamp", LocalDateTime.now());
 
-        return new ResponseEntity<>(errorResponse, ex.getStatus());
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
 }
