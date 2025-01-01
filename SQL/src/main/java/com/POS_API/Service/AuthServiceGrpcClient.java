@@ -5,11 +5,9 @@ import auth.AuthServiceOuterClass;
 import com.POS_API.Advice.Exception.EnumException;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
-import java.io.Console;
 
 @Component
 public class AuthServiceGrpcClient {
@@ -38,8 +36,23 @@ public class AuthServiceGrpcClient {
                 .setRole(userRole)
                 .build();
 
-        System.out.println(request.getRole());
         return blockingStub.registerUser(request);
+    }
+
+    public AuthServiceOuterClass.VerifyTokenResponse verifyToken(String jwt) {
+        AuthServiceOuterClass.VerifyTokenRequest request = AuthServiceOuterClass.VerifyTokenRequest.newBuilder()
+                .setToken(jwt.trim())
+                .build();
+
+        return blockingStub.verifyToken(request);
+    }
+
+    public AuthServiceOuterClass.GetUserDetailsResponse getUserDetails(String jwt) {
+        AuthServiceOuterClass.GetUserDetailsRequest request = AuthServiceOuterClass.GetUserDetailsRequest.newBuilder()
+                .setToken(jwt)
+                .build();
+
+        return blockingStub.getUserDetails(request);
     }
 
     @PreDestroy
