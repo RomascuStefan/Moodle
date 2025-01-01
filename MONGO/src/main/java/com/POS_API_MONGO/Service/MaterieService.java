@@ -36,29 +36,14 @@ import java.util.stream.Collectors;
 public class MaterieService {
 
     private final MaterieDAO materieRepo;
-    private final RestTemplate restTemplate;
-
-    @Value("${sql.service.url}")
-    private String sqlServiceUrl;
     private static final String BASE_PATH = "src/main/resources/Files";
 
     @Autowired
-    public MaterieService(MaterieDAO materieRepo, RestTemplate restTemplate) {
+    public MaterieService(MaterieDAO materieRepo) {
         this.materieRepo = materieRepo;
-        this.restTemplate = restTemplate;
-    }
-
-    private boolean existsByCod(String cod) {
-        String url = sqlServiceUrl + "/lectures/" + cod + "/exists";
-        ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class);
-        return response.getBody();
     }
 
     private void verifyDisciplineExists(String codMaterie) {
-        if (!existsByCod(codMaterie)) {
-            throw new ResourceNotFoundException("Materie", "id (SQL)", codMaterie);
-        }
-
         if (!materieRepo.existsByCodMaterie(codMaterie)) {
             throw new ResourceNotFoundException("Materie", "id (MONGO)", codMaterie);
         }
