@@ -4,6 +4,7 @@ import auth.AuthServiceOuterClass;
 import com.POS_API_MONGO.DTO.*;
 import com.POS_API_MONGO.Service.AuthService;
 import com.POS_API_MONGO.Service.MaterieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.EntityModel;
@@ -35,7 +36,7 @@ public class MaterieController {
 
     @PostMapping("/{codMaterie}/upload_file")
     public ResponseEntity<EntityModel<AddFileResponseDTO>> uploadFile(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
             @RequestBody MultipartFile file) {
@@ -57,7 +58,7 @@ public class MaterieController {
 
     @GetMapping("/{codMaterie}/download_file")
     public ResponseEntity<Resource> downloadFile(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
             @RequestParam String numeFisier) {
@@ -73,7 +74,7 @@ public class MaterieController {
     }
 
     @GetMapping("/{codMaterie}/files")
-    public ResponseEntity<EntityModel<MaterieFilesResponseDTO>> getAllFiles(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String codMaterie) {
+    public ResponseEntity<EntityModel<MaterieFilesResponseDTO>> getAllFiles(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @PathVariable String codMaterie) {
         AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
 
         MaterieFilesResponseDTO response = materieService.getAllFilesForMaterie(codMaterie);
@@ -88,8 +89,8 @@ public class MaterieController {
 
 
     @GetMapping("/{codMaterie}/grading")
-    public ResponseEntity<EntityModel<GradingDTO>> getGrading(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String codMaterie) {
-        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT,ADMIN));
+    public ResponseEntity<EntityModel<GradingDTO>> getGrading(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @PathVariable String codMaterie) {
+        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT, ADMIN));
 
         GradingDTO grading = materieService.getGradingByCodMaterie(codMaterie);
 
@@ -104,9 +105,9 @@ public class MaterieController {
 
     @PutMapping("/{codMaterie}/grading")
     public ResponseEntity<EntityModel<GradingDTO>> modifyGrading(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
-            @RequestBody GradingDTO gradingDTO) {
+            @RequestBody @Valid GradingDTO gradingDTO) {
 
         AuthServiceOuterClass.Role role = authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
 
@@ -122,7 +123,7 @@ public class MaterieController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addMaterie(@RequestHeader("Authorization") String authorizationHeader, @RequestBody CreateMaterieRequestDTO createMaterieRequestDTO) {
+    public ResponseEntity<String> addMaterie(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @RequestBody CreateMaterieRequestDTO createMaterieRequestDTO) {
         authService.verifyRequest(authorizationHeader, List.of(SQL));
 
         materieService.createMaterie(createMaterieRequestDTO);
@@ -131,8 +132,8 @@ public class MaterieController {
     }
 
     @DeleteMapping("/{codMaterie}/delete_file")
-    public ResponseEntity<EntityModel<String>> deleteFisierInLaborator(
-            @RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<EntityModel<DeleteFileResponseDTO>> deleteFisierInLaborator(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
             @RequestParam String numeFisier) {
@@ -141,12 +142,16 @@ public class MaterieController {
 
         materieService.deleteFile(locatie, codMaterie, numeFisier);
 
-        EntityModel<String> response = EntityModel.of(
-                "Fișier șters cu succes.",
-                linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(null, codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
-                linkTo(methodOn(MaterieController.class).getAllFiles(null, codMaterie)).withRel("all-files").withType("GET")
+        DeleteFileResponseDTO responseDTO = new DeleteFileResponseDTO(numeFisier, locatie);
+
+        EntityModel<DeleteFileResponseDTO> response = EntityModel.of(
+                responseDTO,
+                linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(authorizationHeader, codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
+                linkTo(methodOn(MaterieController.class).getAllFiles(authorizationHeader, codMaterie)).withRel("all-files").withType("GET")
         );
 
         return ResponseEntity.ok(response);
     }
+
+
 }

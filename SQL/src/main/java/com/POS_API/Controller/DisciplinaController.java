@@ -46,7 +46,7 @@ public class DisciplinaController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false, defaultValue = "0") String page,
             @RequestParam(required = false, defaultValue = "10") String items_per_page,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
         authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
@@ -117,7 +117,7 @@ public class DisciplinaController {
     }
 
     @GetMapping(value = "/{cod}", produces = "application/JSON")
-    public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
 
@@ -175,7 +175,7 @@ public class DisciplinaController {
     public ResponseEntity<CollectionModel<EntityModel<EnrollResponseDTO>>> enrollStudents(
             @PathVariable String cod,
             @RequestBody @Valid EnrollStudentsDTO enrollStudentsDTO,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
         authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR));
 
@@ -209,7 +209,7 @@ public class DisciplinaController {
     @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> addDisciplina(
             @RequestBody @Valid DisciplinaDTO disciplinaDTO,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
         authService.verifyRequest(authorizationHeader, List.of(ADMIN));

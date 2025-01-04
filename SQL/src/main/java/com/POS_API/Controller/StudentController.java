@@ -36,7 +36,7 @@ public class StudentController {
     }
 
     @GetMapping(produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         //TODO links pentru fiecare rol
@@ -63,7 +63,7 @@ public class StudentController {
     }
 
     @GetMapping(value = "/{id}", produces = "application/JSON")
-    public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         //TODO links pentru fiecare rol
@@ -91,7 +91,7 @@ public class StudentController {
     @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent(
             @PathVariable int id,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
@@ -109,7 +109,7 @@ public class StudentController {
         }
 
         if (userDetail.getRole() == PROFESOR) {
-            lectures = studentService.getDisciplineForStudentByProfessor(id,userDetail.getEmail()).stream()
+            lectures = studentService.getDisciplineForStudentByProfessor(id, userDetail.getEmail()).stream()
                     .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
                             linkTo(methodOn(DisciplinaController.class)
                                     .findDisciplinaByCod(disciplinaDTO.getCod(), null))
@@ -132,7 +132,7 @@ public class StudentController {
     @PostMapping(produces = "application/JSON", consumes = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> addStudent(
             @RequestBody @Valid StudentDTO studentDTO,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
         authService.verifyRequest(authorizationHeader, List.of(ADMIN));
 

@@ -26,7 +26,7 @@ public class MongoReqController {
     }
 
     @PostMapping("/access_resource")
-    public ResponseEntity<String> canAccessResource(@RequestHeader("Authorization") String authorizationHeader, @RequestBody MongoRequestDTO mongoRequest) {
+    public ResponseEntity<String> canAccessResource(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @RequestBody MongoRequestDTO mongoRequest) {
         boolean resp = false;
 
         authService.verifyRequest(authorizationHeader, List.of(MONGO));
@@ -43,7 +43,7 @@ public class MongoReqController {
     }
 
     @PostMapping("/modify_resource")
-    public ResponseEntity<String> canModifyResource(@RequestHeader("Authorization") String authorizationHeader, @RequestBody MongoRequestDTO mongoRequest) {
+    public ResponseEntity<String> canModifyResource(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @RequestBody MongoRequestDTO mongoRequest) {
         boolean resp = false;
 
         authService.verifyRequest(authorizationHeader, List.of(MONGO));
