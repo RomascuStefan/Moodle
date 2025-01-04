@@ -158,6 +158,7 @@ public class ProfesorController {
                                 .findDisciplinaByCod(disciplinaDTO.getCod(), null))
                                 .withSelfRel()
                                 .withType("GET")))
+                
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplinaModels,

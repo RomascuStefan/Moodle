@@ -1,5 +1,6 @@
 package com.POS_API.Controller;
 
+import auth.AuthServiceOuterClass;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
 import com.POS_API.DTO.UserDetailDTO;
@@ -37,9 +38,7 @@ public class StudentController {
 
     @GetMapping(produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
-
-        //TODO links pentru fiecare rol
+        AuthServiceOuterClass.Role role = authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
                 .map(student -> EntityModel.of(student,
@@ -57,17 +56,25 @@ public class StudentController {
                 .findAllStudents(null))
                 .withSelfRel()
                 .withType("GET");
+
         CollectionModel<EntityModel<StudentDTO>> collectionModel = CollectionModel.of(students, selfLink);
+
+        if (role == ADMIN) {
+            collectionModel.add(linkTo(methodOn(StudentController.class)
+                    .addStudent(null, null))
+                    .withRel("add-student")
+                    .withType("POST"));
+        }
 
         return ResponseEntity.ok(collectionModel);
     }
+
 
     @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-        //TODO links pentru fiecare rol
-
+        //if self -> link editare profil
 
         StudentDTO student = studentService.findStudentById(id);
 

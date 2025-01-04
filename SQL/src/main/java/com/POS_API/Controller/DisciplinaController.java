@@ -1,5 +1,6 @@
 package com.POS_API.Controller;
 
+import auth.AuthServiceOuterClass;
 import com.POS_API.DTO.*;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,9 +51,7 @@ public class DisciplinaController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
-        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
-
-        //TODO adaugare link in functie de rol
+        AuthServiceOuterClass.Role role = authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         List<DisciplinaDTO> discipline = disciplinaService.findAllDiscipline();
 
@@ -73,15 +73,30 @@ public class DisciplinaController {
         List<DisciplinaDTO> paginatedDiscipline = discipline.subList(fromIndex, toIndex);
 
         List<EntityModel<DisciplinaDTO>> disciplineModels = paginatedDiscipline.stream()
-                .map(disciplina -> EntityModel.of(disciplina,
-                        linkTo(methodOn(DisciplinaController.class)
-                                .findDisciplinaByCod(disciplina.getCod(), null))
-                                .withSelfRel()
-                                .withType("GET"),
-                        linkTo(methodOn(DisciplinaController.class)
-                                .findAllDiscipline(null, null, page, items_per_page, null))
-                                .withRel("all-lectures")
-                                .withType("GET")))
+                .map(disciplina -> {
+                    List<Link> links = new ArrayList<>();
+
+                    links.add(linkTo(methodOn(DisciplinaController.class)
+                            .findDisciplinaByCod(disciplina.getCod(), null))
+                            .withSelfRel().withType("GET"));
+
+                    if (role == ADMIN) {
+                        links.add(linkTo(methodOn(DisciplinaController.class)
+                                .addDisciplina(null, null))
+                                .withRel("add-disciplina").withType("POST"));
+                        links.add(linkTo(methodOn(DisciplinaController.class)
+                                .enrollStudents(disciplina.getCod(), null, null))
+                                .withRel("enroll-students").withType("POST"));
+                    }
+
+                    if (role == PROFESOR) {
+                        links.add(linkTo(methodOn(DisciplinaController.class)
+                                .enrollStudents(disciplina.getCod(), null, null))
+                                .withRel("enroll-students").withType("POST"));
+                    }
+
+                    return EntityModel.of(disciplina, links);
+                })
                 .collect(Collectors.toList());
 
         Link selfLink = linkTo(methodOn(DisciplinaController.class)
@@ -122,54 +137,29 @@ public class DisciplinaController {
 
 
         DisciplinaDTO disciplina = disciplinaService.findDisciplinaByCod(cod);
-        EntityModel<DisciplinaDTO> disciplinaModel = null;
+        List<Link> links = new ArrayList<>();
+        links.add(linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null)).withSelfRel().withType("GET"));
+        links.add(linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null)).withRel("all-disciplines").withType("GET"));
 
-        if (userDetail.getRole() == PROFESOR && disciplinaService.isTeaching(disciplina.getCod(), userDetail.getEmail())) {
-            disciplinaModel = EntityModel.of(disciplina,
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findDisciplinaByCod(cod, null))
-                            .withSelfRel()
-                            .withType("GET"),
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findAllDiscipline(null, null, null, null, null))
-                            .withRel("all-lectures")
-                            .withType("GET"));
 
-            //TODO add link pt adaugare fisier
-            //TODO link download fisiere
-
+        if (userDetail.getRole() == PROFESOR && disciplinaService.isTeaching(cod, userDetail.getEmail())) {
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/upload_file".replace("{codMaterie}", cod)).withRel("upload-files").withType("POST"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/download_file".replace("{codMaterie}", cod)).withRel("download-files").withType("GET"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/files".replace("{codMaterie}", cod)).withRel("get-file-names").withType("GET"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/grading".replace("{codMaterie}", cod)).withRel("update-grades").withType("PUT"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/grading".replace("{codMaterie}", cod)).withRel("get-grades").withType("GET"));
+            links.add(linkTo(methodOn(DisciplinaController.class).enrollStudents(cod, null, null)).withRel("enroll-students").withType("POST"));
         }
 
         if (userDetail.getRole() == STUDENT && disciplinaService.isAttending(cod, userDetail.getEmail())) {
-            disciplinaModel = EntityModel.of(disciplina,
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findDisciplinaByCod(cod, null))
-                            .withSelfRel()
-                            .withType("GET"),
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findAllDiscipline(null, null, null, null, null))
-                            .withRel("all-lectures")
-                            .withType("GET"));
-
-            //TODO link download fisiere
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/download_file".replace("{codMaterie}", cod)).withRel("download-files").withType("GET"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/files".replace("{codMaterie}", cod)).withRel("get-file-names").withType("GET"));
+            links.add(Link.of("http://localhost:8081/api/academia_mongo/{codMaterie}/grading".replace("{codMaterie}", cod)).withRel("get-grades").withType("GET"));
         }
 
-        if (userDetail.getRole() == ADMIN) {
-            disciplinaModel = EntityModel.of(disciplina,
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findDisciplinaByCod(cod, null))
-                            .withSelfRel()
-                            .withType("GET"),
-                    linkTo(methodOn(DisciplinaController.class)
-                            .findAllDiscipline(null, null, null, null, null))
-                            .withRel("all-lectures")
-                            .withType("GET"));
-            //TODO link pt modificat fisiere
-
-        }
-
-        return ResponseEntity.ok(disciplinaModel);
+        return ResponseEntity.ok(EntityModel.of(disciplina, links));
     }
+
 
     @PostMapping(value = "/{cod}/enroll", consumes = "application/JSON", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<EnrollResponseDTO>>> enrollStudents(
@@ -185,22 +175,14 @@ public class DisciplinaController {
         List<EntityModel<EnrollResponseDTO>> enrolledStudentsLinks = enrollStudentsDTO.getStudents().stream()
                 .map(studentId -> EntityModel.of(
                         new EnrollResponseDTO(String.format("Studentul cu ID-ul %d a fost înscris cu succes la disciplina %s.", studentId, cod)),
-                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null))
-                                .withRel("discipline-details")
-                                .withType("GET"),
-                        linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null))
-                                .withRel("all-disciplines")
-                                .withType("GET")))
+                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null)).withRel("discipline-details").withType("GET"),
+                        linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null)).withRel("all-disciplines").withType("GET")))
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<EnrollResponseDTO>> response = CollectionModel.of(
                 enrolledStudentsLinks,
-                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null))
-                        .withRel("discipline-details")
-                        .withType("GET"),
-                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null))
-                        .withRel("all-disciplines")
-                        .withType("GET"));
+                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null)).withRel("discipline-details").withType("GET"),
+                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null)).withRel("all-disciplines").withType("GET"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
