@@ -1,7 +1,6 @@
 package com.POS_API.DTO;
 
 import com.POS_API.Model.Disciplina;
-import com.POS_API.Model.Enums.CicluStudii;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
