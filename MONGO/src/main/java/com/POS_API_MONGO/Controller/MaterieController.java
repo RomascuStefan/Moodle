@@ -1,12 +1,11 @@
 package com.POS_API_MONGO.Controller;
 
-import com.POS_API_MONGO.DTO.CreateMaterieRequestDTO;
-import com.POS_API_MONGO.DTO.GradingDTO;
-import com.POS_API_MONGO.DTO.MaterieFilesResponseDTO;
+import auth.AuthServiceOuterClass;
+import com.POS_API_MONGO.DTO.*;
+import com.POS_API_MONGO.Service.AuthService;
 import com.POS_API_MONGO.Service.MaterieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,9 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static com.POS_API_MONGO.Service.AuthService.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -27,24 +25,31 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class MaterieController {
 
     private final MaterieService materieService;
+    private final AuthService authService;
 
     @Autowired
-    public MaterieController(MaterieService materieService) {
+    public MaterieController(MaterieService materieService, AuthService authService) {
         this.materieService = materieService;
+        this.authService = authService;
     }
 
     @PostMapping("/{codMaterie}/upload_file")
-    public ResponseEntity<EntityModel<String>> addFisierInLaborator(
+    public ResponseEntity<EntityModel<AddFileResponseDTO>> uploadFile(
+            @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
-            @RequestParam("file") MultipartFile file) {
+            @RequestBody MultipartFile file) {
+
+        authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
 
         materieService.saveFile(locatie, codMaterie, file);
 
-        EntityModel<String> response = EntityModel.of(
-                "Fișier salvat cu succes.",
-                linkTo(methodOn(MaterieController.class).addFisierInLaborator(codMaterie, locatie, file)).withSelfRel().withType("POST"),
-                linkTo(methodOn(MaterieController.class).getAllFiles(codMaterie)).withRel("all-files").withType("GET")
+        AddFileResponseDTO responseDTO = new AddFileResponseDTO(file.getOriginalFilename(), locatie);
+
+        EntityModel<AddFileResponseDTO> response = EntityModel.of(
+                responseDTO,
+                linkTo(methodOn(MaterieController.class).uploadFile(null, codMaterie, locatie, file)).withSelfRel().withType("POST"),
+                linkTo(methodOn(MaterieController.class).getAllFiles(null, codMaterie)).withRel("all-files").withType("GET")
         );
 
         return ResponseEntity.ok(response);
@@ -52,9 +57,12 @@ public class MaterieController {
 
     @GetMapping("/{codMaterie}/download_file")
     public ResponseEntity<Resource> downloadFile(
+            @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
             @RequestParam String numeFisier) {
+
+        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
 
         Resource resource = materieService.getFileResource(codMaterie, locatie, numeFisier);
 
@@ -65,39 +73,30 @@ public class MaterieController {
     }
 
     @GetMapping("/{codMaterie}/files")
-    public ResponseEntity<CollectionModel<EntityModel<String>>> getAllFiles(@PathVariable String codMaterie) {
+    public ResponseEntity<EntityModel<MaterieFilesResponseDTO>> getAllFiles(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String codMaterie) {
+        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
+
         MaterieFilesResponseDTO response = materieService.getAllFilesForMaterie(codMaterie);
 
-        List<EntityModel<String>> laboratorFiles = response.getFisiereLaborator().stream()
-                .map(fileName -> EntityModel.of(
-                        fileName,
-                        linkTo(methodOn(MaterieController.class).downloadFile(codMaterie, "laborator", fileName)).withRel("download-laborator-file").withType("GET")
-                ))
-                .collect(Collectors.toList());
-
-        List<EntityModel<String>> cursFiles = response.getFisiereCurs().stream()
-                .map(fileName -> EntityModel.of(
-                        fileName,
-                        linkTo(methodOn(MaterieController.class).downloadFile(codMaterie, "curs", fileName)).withRel("download-curs-file").withType("GET")
-                ))
-                .collect(Collectors.toList());
-
-        CollectionModel<EntityModel<String>> filesModel = CollectionModel.of(
-                Stream.concat(laboratorFiles.stream(), cursFiles.stream()).collect(Collectors.toList()),
-                linkTo(methodOn(MaterieController.class).getAllFiles(codMaterie)).withSelfRel().withType("GET")
+        EntityModel<MaterieFilesResponseDTO> entityModel = EntityModel.of(
+                response,
+                linkTo(methodOn(MaterieController.class).getAllFiles(null, codMaterie)).withSelfRel().withType("GET")
         );
 
-        return ResponseEntity.ok(filesModel);
+        return ResponseEntity.ok(entityModel);
     }
 
+
     @GetMapping("/{codMaterie}/grading")
-    public ResponseEntity<EntityModel<GradingDTO>> getGrading(@PathVariable String codMaterie) {
+    public ResponseEntity<EntityModel<GradingDTO>> getGrading(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String codMaterie) {
+        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT,ADMIN));
+
         GradingDTO grading = materieService.getGradingByCodMaterie(codMaterie);
 
         EntityModel<GradingDTO> gradingModel = EntityModel.of(
                 grading,
-                linkTo(methodOn(MaterieController.class).getGrading(codMaterie)).withSelfRel().withType("GET"),
-                linkTo(methodOn(MaterieController.class).modifyGrading(codMaterie, grading)).withRel("update-grading").withType("PUT")
+                linkTo(methodOn(MaterieController.class).getGrading(null, codMaterie)).withSelfRel().withType("GET"),
+                linkTo(methodOn(MaterieController.class).modifyGrading(null, codMaterie, grading)).withRel("update-grading").withType("PUT")
         );
 
         return ResponseEntity.ok(gradingModel);
@@ -105,22 +104,27 @@ public class MaterieController {
 
     @PutMapping("/{codMaterie}/grading")
     public ResponseEntity<EntityModel<GradingDTO>> modifyGrading(
+            @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestBody GradingDTO gradingDTO) {
+
+        AuthServiceOuterClass.Role role = authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
 
         GradingDTO updatedGrading = materieService.updateGrading(codMaterie, gradingDTO.getProbeExaminare());
 
         EntityModel<GradingDTO> gradingModel = EntityModel.of(
                 updatedGrading,
-                linkTo(methodOn(MaterieController.class).modifyGrading(codMaterie, gradingDTO)).withSelfRel().withType("PUT"),
-                linkTo(methodOn(MaterieController.class).getGrading(codMaterie)).withRel("get-grading").withType("GET")
+                linkTo(methodOn(MaterieController.class).modifyGrading(null, codMaterie, gradingDTO)).withSelfRel().withType("PUT"),
+                linkTo(methodOn(MaterieController.class).getGrading(null, codMaterie)).withRel("get-grading").withType("GET")
         );
 
         return ResponseEntity.ok(gradingModel);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addMaterie(@RequestBody CreateMaterieRequestDTO createMaterieRequestDTO) {
+    public ResponseEntity<String> addMaterie(@RequestHeader("Authorization") String authorizationHeader, @RequestBody CreateMaterieRequestDTO createMaterieRequestDTO) {
+        authService.verifyRequest(authorizationHeader, List.of(SQL));
+
         materieService.createMaterie(createMaterieRequestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Materie creata");
@@ -128,16 +132,19 @@ public class MaterieController {
 
     @DeleteMapping("/{codMaterie}/delete_file")
     public ResponseEntity<EntityModel<String>> deleteFisierInLaborator(
+            @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable String codMaterie,
             @RequestParam String locatie,
             @RequestParam String numeFisier) {
+
+        authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
 
         materieService.deleteFile(locatie, codMaterie, numeFisier);
 
         EntityModel<String> response = EntityModel.of(
                 "Fișier șters cu succes.",
-                linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
-                linkTo(methodOn(MaterieController.class).getAllFiles(codMaterie)).withRel("all-files").withType("GET")
+                linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(null, codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
+                linkTo(methodOn(MaterieController.class).getAllFiles(null, codMaterie)).withRel("all-files").withType("GET")
         );
 
         return ResponseEntity.ok(response);

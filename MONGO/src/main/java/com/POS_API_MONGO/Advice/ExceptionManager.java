@@ -1,14 +1,9 @@
 package com.POS_API_MONGO.Advice;
 
-import com.POS_API_MONGO.Advice.Exception.InvalidPonderiException;
-import com.POS_API_MONGO.Advice.Exception.ResourceNotFoundException;
-import com.POS_API_MONGO.Advice.Exception.UniqueKeyException;
-import com.POS_API_MONGO.Advice.Exception.WrongLocationException;
+import com.POS_API_MONGO.Advice.Exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -61,6 +56,27 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(IdmServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleIdmServiceException(IdmServiceException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("details", ex.getResponseBody());
+        errorResponse.put("status", ex.getStatus().value());
+        errorResponse.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(SqlServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleIdmServiceException(SqlServiceException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("details", ex.getResponseBody());
+        errorResponse.put("status", ex.getStatus().value());
+        errorResponse.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+    }
+
+
     // Handle generic RuntimeException (fallback)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
@@ -72,5 +88,6 @@ public class ExceptionManager {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
 
 }
