@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.POS_API_MONGO.Service.AuthService.*;
@@ -94,14 +96,18 @@ public class MaterieController {
 
         GradingDTO grading = materieService.getGradingByCodMaterie(codMaterie);
 
-        EntityModel<GradingDTO> gradingModel = EntityModel.of(
-                grading,
-                linkTo(methodOn(MaterieController.class).getGrading(null, codMaterie)).withSelfRel().withType("GET"),
-                linkTo(methodOn(MaterieController.class).modifyGrading(null, codMaterie, grading)).withRel("update-grading").withType("PUT")
-        );
+        List<Link> links = new ArrayList<>();
+        links.add(linkTo(methodOn(MaterieController.class).getGrading(null, codMaterie)).withSelfRel().withType("GET"));
+
+        if (role == PROFESOR) {
+            links.add(linkTo(methodOn(MaterieController.class).modifyGrading(null, codMaterie, null)).withRel("update-grading").withType("PUT"));
+        }
+
+        EntityModel<GradingDTO> gradingModel = EntityModel.of(grading, links);
 
         return ResponseEntity.ok(gradingModel);
     }
+
 
     @PutMapping("/{codMaterie}/grading")
     public ResponseEntity<EntityModel<GradingDTO>> modifyGrading(
@@ -109,7 +115,7 @@ public class MaterieController {
             @PathVariable String codMaterie,
             @RequestBody @Valid GradingDTO gradingDTO) {
 
-        AuthServiceOuterClass.Role role = authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
+        authService.canModifyResource(codMaterie, authorizationHeader, List.of(PROFESOR));
 
         GradingDTO updatedGrading = materieService.updateGrading(codMaterie, gradingDTO.getProbeExaminare());
 
@@ -147,7 +153,9 @@ public class MaterieController {
         EntityModel<DeleteFileResponseDTO> response = EntityModel.of(
                 responseDTO,
                 linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(authorizationHeader, codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
-                linkTo(methodOn(MaterieController.class).getAllFiles(authorizationHeader, codMaterie)).withRel("all-files").withType("GET")
+                linkTo(methodOn(MaterieController.class).getAllFiles(authorizationHeader, codMaterie)).withRel("all-files").withType("GET"),
+                linkTo(methodOn(MaterieController.class).uploadFile(authorizationHeader, codMaterie,null,null)).withRel("upload-file").withType("POST")
+
         );
 
         return ResponseEntity.ok(response);
