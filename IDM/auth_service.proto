@@ -55,4 +55,6 @@ enum Role {
   admin = 0;
   profesor = 1;
   student = 2;
+  mongo=3;
+  sql=4;
 }

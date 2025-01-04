@@ -31,6 +31,14 @@ public final class AuthServiceOuterClass {
      * <code>student = 2;</code>
      */
     student(2),
+    /**
+     * <code>mongo = 3;</code>
+     */
+    mongo(3),
+    /**
+     * <code>sql = 4;</code>
+     */
+    sql(4),
     UNRECOGNIZED(-1),
     ;
 
@@ -46,6 +54,14 @@ public final class AuthServiceOuterClass {
      * <code>student = 2;</code>
      */
     public static final int student_VALUE = 2;
+    /**
+     * <code>mongo = 3;</code>
+     */
+    public static final int mongo_VALUE = 3;
+    /**
+     * <code>sql = 4;</code>
+     */
+    public static final int sql_VALUE = 4;
 
 
     public final int getNumber() {
@@ -69,6 +85,8 @@ public final class AuthServiceOuterClass {
         case 0: return admin;
         case 1: return profesor;
         case 2: return student;
+        case 3: return mongo;
+        case 4: return sql;
         default: return null;
       }
     }
@@ -5670,16 +5688,16 @@ public final class AuthServiceOuterClass {
       " \001(\t\"#\n\022VerifyTokenRequest\022\r\n\005token\030\001 \001(" +
       "\t\"O\n\023VerifyTokenResponse\022\r\n\005valid\030\001 \001(\010\022" +
       "\017\n\007message\030\002 \001(\t\022\030\n\004role\030\003 \001(\0162\n.auth.Ro" +
-      "le*,\n\004Role\022\t\n\005admin\020\000\022\014\n\010profesor\020\001\022\013\n\007s" +
-      "tudent\020\0022\270\002\n\013AuthService\022E\n\014RegisterUser" +
-      "\022\031.auth.RegisterUserRequest\032\032.auth.Regis" +
-      "terUserResponse\022Q\n\020AuthenticateUser\022\035.au" +
-      "th.AuthenticateUserRequest\032\036.auth.Authen" +
-      "ticateUserResponse\022K\n\016GetUserDetails\022\033.a" +
-      "uth.GetUserDetailsRequest\032\034.auth.GetUser" +
-      "DetailsResponse\022B\n\013VerifyToken\022\030.auth.Ve" +
-      "rifyTokenRequest\032\031.auth.VerifyTokenRespo" +
-      "nseb\006proto3"
+      "le*@\n\004Role\022\t\n\005admin\020\000\022\014\n\010profesor\020\001\022\013\n\007s" +
+      "tudent\020\002\022\t\n\005mongo\020\003\022\007\n\003sql\020\0042\270\002\n\013AuthSer" +
+      "vice\022E\n\014RegisterUser\022\031.auth.RegisterUser" +
+      "Request\032\032.auth.RegisterUserResponse\022Q\n\020A" +
+      "uthenticateUser\022\035.auth.AuthenticateUserR" +
+      "equest\032\036.auth.AuthenticateUserResponse\022K" +
+      "\n\016GetUserDetails\022\033.auth.GetUserDetailsRe" +
+      "quest\032\034.auth.GetUserDetailsResponse\022B\n\013V" +
+      "erifyToken\022\030.auth.VerifyTokenRequest\032\031.a" +
+      "uth.VerifyTokenResponseb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
