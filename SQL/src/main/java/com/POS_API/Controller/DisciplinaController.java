@@ -1,9 +1,6 @@
 package com.POS_API.Controller;
 
-import com.POS_API.DTO.DisciplinaDTO;
-import com.POS_API.DTO.EnrollResponseDTO;
-import com.POS_API.DTO.EnrollStudentsDTO;
-import com.POS_API.DTO.ProfesorDTO;
+import com.POS_API.DTO.*;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.DisciplinaService;
@@ -52,8 +49,9 @@ public class DisciplinaController {
             @RequestHeader("Authorization") String authorizationHeader) {
 
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN,PROFESOR,STUDENT));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
+
+        //TODO adaugare link in functie de rol
 
         List<DisciplinaDTO> discipline = disciplinaService.findAllDiscipline();
 
@@ -77,31 +75,31 @@ public class DisciplinaController {
         List<EntityModel<DisciplinaDTO>> disciplineModels = paginatedDiscipline.stream()
                 .map(disciplina -> EntityModel.of(disciplina,
                         linkTo(methodOn(DisciplinaController.class)
-                                .findDisciplinaByCod(disciplina.getCod(),null))
+                                .findDisciplinaByCod(disciplina.getCod(), null))
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(DisciplinaController.class)
-                                .findAllDiscipline(null, null, page, items_per_page,null))
+                                .findAllDiscipline(null, null, page, items_per_page, null))
                                 .withRel("all-lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
 
         Link selfLink = linkTo(methodOn(DisciplinaController.class)
-                .findAllDiscipline(type, category, page, items_per_page,null))
+                .findAllDiscipline(type, category, page, items_per_page, null))
                 .withSelfRel()
                 .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplineModels, selfLink);
 
         collectionModel.add(
                 linkTo(methodOn(DisciplinaController.class)
-                        .findAllDiscipline(type, category, Integer.toString(integerPage), Integer.toString(integerItemPerPage),null))
+                        .findAllDiscipline(type, category, Integer.toString(integerPage), Integer.toString(integerItemPerPage), null))
                         .withRel("current_page")
                         .withType("GET")
         );
         if (fromIndex > 0) {
             collectionModel.add(
                     linkTo(methodOn(DisciplinaController.class)
-                            .findAllDiscipline(type, category, Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage),null))
+                            .findAllDiscipline(type, category, Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage), null))
                             .withRel("previous_page")
                             .withType("GET")
             );
@@ -109,7 +107,7 @@ public class DisciplinaController {
         if (toIndex < totalItems) {
             collectionModel.add(
                     linkTo(methodOn(DisciplinaController.class)
-                            .findAllDiscipline(type, category, Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage),null))
+                            .findAllDiscipline(type, category, Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage), null))
                             .withRel("next_page")
                             .withType("GET")
             );
@@ -120,23 +118,55 @@ public class DisciplinaController {
 
     @GetMapping(value = "/{cod}", produces = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod, @RequestHeader("Authorization") String authorizationHeader) {
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN,PROFESOR,STUDENT));
+        UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-        //if prof...
-        //if student...
 
         DisciplinaDTO disciplina = disciplinaService.findDisciplinaByCod(cod);
+        EntityModel<DisciplinaDTO> disciplinaModel = null;
 
-        EntityModel<DisciplinaDTO> disciplinaModel = EntityModel.of(disciplina,
-                linkTo(methodOn(DisciplinaController.class)
-                        .findDisciplinaByCod(cod,null))
-                        .withSelfRel()
-                        .withType("GET"),
-                linkTo(methodOn(DisciplinaController.class)
-                        .findAllDiscipline(null, null, null, null,null))
-                        .withRel("all-lectures")
-                        .withType("GET"));
+        if (userDetail.getRole() == PROFESOR && disciplinaService.isTeaching(disciplina.getCod(), userDetail.getEmail())) {
+            disciplinaModel = EntityModel.of(disciplina,
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findDisciplinaByCod(cod, null))
+                            .withSelfRel()
+                            .withType("GET"),
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findAllDiscipline(null, null, null, null, null))
+                            .withRel("all-lectures")
+                            .withType("GET"));
+
+            //TODO add link pt adaugare fisier
+            //TODO link download fisiere
+
+        }
+
+        if (userDetail.getRole() == STUDENT && disciplinaService.isAttending(cod, userDetail.getEmail())) {
+            disciplinaModel = EntityModel.of(disciplina,
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findDisciplinaByCod(cod, null))
+                            .withSelfRel()
+                            .withType("GET"),
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findAllDiscipline(null, null, null, null, null))
+                            .withRel("all-lectures")
+                            .withType("GET"));
+
+            //TODO link download fisiere
+        }
+
+        if (userDetail.getRole() == ADMIN) {
+            disciplinaModel = EntityModel.of(disciplina,
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findDisciplinaByCod(cod, null))
+                            .withSelfRel()
+                            .withType("GET"),
+                    linkTo(methodOn(DisciplinaController.class)
+                            .findAllDiscipline(null, null, null, null, null))
+                            .withRel("all-lectures")
+                            .withType("GET"));
+            //TODO link pt modificat fisiere
+
+        }
 
         return ResponseEntity.ok(disciplinaModel);
     }
@@ -147,8 +177,7 @@ public class DisciplinaController {
             @RequestBody @Valid EnrollStudentsDTO enrollStudentsDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN,PROFESOR));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR));
 
         disciplinaStudentService.verifyData(enrollStudentsDTO.getStudents(), cod);
         disciplinaStudentService.saveData(enrollStudentsDTO.getStudents(), cod);
@@ -156,20 +185,20 @@ public class DisciplinaController {
         List<EntityModel<EnrollResponseDTO>> enrolledStudentsLinks = enrollStudentsDTO.getStudents().stream()
                 .map(studentId -> EntityModel.of(
                         new EnrollResponseDTO(String.format("Studentul cu ID-ul %d a fost înscris cu succes la disciplina %s.", studentId, cod)),
-                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod,null))
+                        linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null))
                                 .withRel("discipline-details")
                                 .withType("GET"),
-                        linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null,null))
+                        linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null))
                                 .withRel("all-disciplines")
                                 .withType("GET")))
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<EnrollResponseDTO>> response = CollectionModel.of(
                 enrolledStudentsLinks,
-                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod,null))
+                linkTo(methodOn(DisciplinaController.class).findDisciplinaByCod(cod, null))
                         .withRel("discipline-details")
                         .withType("GET"),
-                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null,null))
+                linkTo(methodOn(DisciplinaController.class).findAllDiscipline(null, null, null, null, null))
                         .withRel("all-disciplines")
                         .withType("GET"));
 
@@ -183,22 +212,23 @@ public class DisciplinaController {
             @RequestHeader("Authorization") String authorizationHeader) {
 
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN));
 
         int titularId = HelperFunctions.stringToInt(disciplinaDTO.getTitularId(), "Titular ID");
 
         ProfesorDTO titular = profesorService.findProfesorById(titularId);
 
-        DisciplinaDTO savedDisciplina = disciplinaService.addDisciplina(disciplinaDTO, titular);
+        String header = authService.getHeader();
+
+        DisciplinaDTO savedDisciplina = disciplinaService.addDisciplina(header, disciplinaDTO, titular);
 
         EntityModel<DisciplinaDTO> disciplinaModel = EntityModel.of(savedDisciplina,
                 linkTo(methodOn(DisciplinaController.class)
-                        .findDisciplinaByCod(savedDisciplina.getCod(),null))
+                        .findDisciplinaByCod(savedDisciplina.getCod(), null))
                         .withSelfRel()
                         .withType("POST"),
                 linkTo(methodOn(DisciplinaController.class)
-                        .findAllDiscipline(null, null, null, null,null))
+                        .findAllDiscipline(null, null, null, null, null))
                         .withRel("all-lectures")
                         .withType("GET"));
 

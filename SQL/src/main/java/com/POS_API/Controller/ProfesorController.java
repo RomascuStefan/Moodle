@@ -47,8 +47,7 @@ public class ProfesorController {
             @RequestParam(required = false, defaultValue = "10") String items_per_page,
             @RequestHeader("Authorization") String authorizationHeader) {
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN, PROFESOR, STUDENT));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         List<ProfesorDTO> profesori;
         if (nume != null) {
@@ -121,8 +120,9 @@ public class ProfesorController {
     @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<ProfesorDTO>> findProfesorById(@PathVariable int id, @RequestHeader("Authorization") String authorizationHeader) {
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN, PROFESOR, STUDENT));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
+
+        //if self -> link editare profil
 
         ProfesorDTO profesor = profesorService.findProfesorById(id);
 
@@ -146,8 +146,7 @@ public class ProfesorController {
     @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@PathVariable int id, @RequestHeader("Authorization") String authorizationHeader) { //toti
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN,PROFESOR,STUDENT));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN,PROFESOR,STUDENT));
 
         int profId = profesorService.findProfesorById(id).getId();
 
@@ -180,8 +179,7 @@ public class ProfesorController {
             @RequestHeader("Authorization") String authorizationHeader) {
 
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN));
 
         ProfesorDTO savedProfesor = profesorService.addProfesor(profesorDTO);
         authService.registerUser(savedProfesor.getEmail(), profesorDTO.getPassword(), "profesor");

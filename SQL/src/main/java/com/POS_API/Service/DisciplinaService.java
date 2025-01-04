@@ -1,9 +1,6 @@
 package com.POS_API.Service;
 
-import com.POS_API.Advice.Exception.MongoServiceException;
-import com.POS_API.Advice.Exception.RequestParamWrong;
-import com.POS_API.Advice.Exception.ResourceNotFoundException;
-import com.POS_API.Advice.Exception.UniqueKeyException;
+import com.POS_API.Advice.Exception.*;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.MongoAddLectureDTO;
 import com.POS_API.DTO.ProfesorDTO;
@@ -16,8 +13,9 @@ import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.DisciplinaDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +89,7 @@ public class DisciplinaService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public DisciplinaDTO addDisciplina(DisciplinaDTO disciplinaDTO, ProfesorDTO titularDTO) {
+    public DisciplinaDTO addDisciplina(String header, DisciplinaDTO disciplinaDTO, ProfesorDTO titularDTO) {
 
         String codPrefix = DisciplinaMapper.getPrefix(disciplinaDTO);
 
@@ -104,21 +102,44 @@ public class DisciplinaService {
             throw new UniqueKeyException("Disciplina", disciplina.getNumeDisciplina() + " predat in anul de studii: " + disciplina.getAnStudiu());
         }
 
-
         MongoAddLectureDTO requestBody = new MongoAddLectureDTO();
         requestBody.setCodMaterie(disciplina.getCod());
         requestBody.setExaminare(disciplina.getTipExaminare().toString());
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", header);
+
+        HttpEntity<MongoAddLectureDTO> requestEntity = new HttpEntity<>(requestBody, headers);
+
         String url = mongoServiceUrl + "/add";
-        ResponseEntity<Void> mongoResponse = restTemplate.postForEntity(url, requestBody, Void.class);
-        if(mongoResponse.getStatusCode() != HttpStatus.CREATED)
-            throw new MongoServiceException(mongoResponse.getStatusCode(),mongoResponse.toString());
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> mongoResponse = restTemplate.postForEntity(url, requestEntity, String.class);
+
+        if (mongoResponse.getStatusCode() != HttpStatus.CREATED) {
+            throw new MongoServiceException(mongoResponse.getStatusCode(), mongoResponse.getBody());
+        }
 
         return DisciplinaMapper.toDTO(disciplinaRepo.save(disciplina));
     }
 
-    public boolean existsByCod(String cod) {
-        return disciplinaRepo.existsByCod(cod);
+
+    public boolean isTeaching(String cod, String email) {
+        if (disciplinaRepo.existsByCodAndTitular_Email(cod, email))
+            return true;
+
+        if(!disciplinaRepo.existsByCod(cod))
+            throw new ResourceNotFoundException("Disciplina","cod",cod);
+
+        throw new IdmServiceException(HttpStatus.FORBIDDEN, "Access forbidden");
     }
 
+    public boolean isAttending(String cod, String email) {
+        if (disciplinaRepo.existsByCodAndStudentEmail(cod, email))
+            return true;
+
+        if(!disciplinaRepo.existsByCod(cod))
+            throw new ResourceNotFoundException("Disciplina","cod",cod);
+
+        throw new IdmServiceException(HttpStatus.FORBIDDEN, "Access forbidden");
+    }
 }

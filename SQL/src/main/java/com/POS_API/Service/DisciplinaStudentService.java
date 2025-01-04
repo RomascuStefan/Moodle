@@ -56,6 +56,4 @@ public class DisciplinaStudentService {
             studentRepo.save(student);
         }
     }
-
-
 }

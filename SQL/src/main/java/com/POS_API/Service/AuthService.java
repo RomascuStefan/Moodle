@@ -28,13 +28,15 @@ public class AuthService {
         throw new IdmServiceException(HttpStatus.INTERNAL_SERVER_ERROR, response.getMessage());
     }
 
-    public UserDetailDTO getUserDetail(String token, List<AuthServiceOuterClass.Role> allowedRoles) {
+    public UserDetailDTO getUserDetail(String authorizationHeader, List<AuthServiceOuterClass.Role> allowedRoles) {
+        String token = extractToken(authorizationHeader);
+
         AuthServiceOuterClass.GetUserDetailsResponse response = authServiceGrpcClient.getUserDetails(token);
 
         if (!response.getSuccess())
             throw new IdmServiceException(HttpStatus.UNAUTHORIZED, response.getMessage());
 
-        if(!allowedRoles.contains(response.getRole()))
+        if (!allowedRoles.contains(response.getRole()))
             throw new IdmServiceException(HttpStatus.FORBIDDEN, "Not allowed");
 
 
@@ -45,7 +47,9 @@ public class AuthService {
         return userDetail;
     }
 
-    public AuthServiceOuterClass.Role verifyRequest(String token, List<AuthServiceOuterClass.Role> allowedRoles) {
+    public AuthServiceOuterClass.Role verifyRequest(String authorizationHeader, List<AuthServiceOuterClass.Role> allowedRoles) {
+        String token = extractToken(authorizationHeader);
+
         AuthServiceOuterClass.VerifyTokenResponse response = authServiceGrpcClient.verifyToken(token);
 
         if (!response.getValid())
@@ -57,5 +61,29 @@ public class AuthService {
         return response.getRole();
     }
 
+    private String extractToken(String authorizationHeader) {
+        final String errorMessage = "Authorization header is missing or invalid: ";
 
+        if (authorizationHeader == null) {
+            throw new IdmServiceException(HttpStatus.UNAUTHORIZED, errorMessage + "header is null");
+        }
+        if (authorizationHeader.trim().isEmpty()) {
+            throw new IdmServiceException(HttpStatus.UNAUTHORIZED, errorMessage + "header is empty");
+        }
+        if (!authorizationHeader.startsWith("Bearer ")) {
+            throw new IdmServiceException(HttpStatus.UNAUTHORIZED, errorMessage + "header must start with 'Bearer '");
+        }
+
+        return authorizationHeader.substring(7);
+    }
+
+    public String getHeader() {
+        try {
+            String token = authServiceGrpcClient.loginUser();
+
+            return "Bearer " + token;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate Authorization header: " + e.getMessage(), e);
+        }
+    }
 }

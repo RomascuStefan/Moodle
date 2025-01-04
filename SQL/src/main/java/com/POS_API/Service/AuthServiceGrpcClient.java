@@ -5,6 +5,7 @@ import auth.AuthServiceOuterClass;
 import com.POS_API.Advice.Exception.EnumException;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -14,6 +15,12 @@ public class AuthServiceGrpcClient {
 
     private final ManagedChannel channel;
     private final AuthServiceGrpc.AuthServiceBlockingStub blockingStub;
+
+    @Value("${sql.service.user}")
+    private String sqlUser;
+
+    @Value("${sql.service.pass}")
+    private String sqlPass;
 
     public AuthServiceGrpcClient() {
         this.channel = ManagedChannelBuilder.forAddress("localhost", 50051)
@@ -27,6 +34,8 @@ public class AuthServiceGrpcClient {
             case "admin" -> AuthServiceOuterClass.Role.admin;
             case "profesor" -> AuthServiceOuterClass.Role.profesor;
             case "student" -> AuthServiceOuterClass.Role.student;
+            case "mongo" -> AuthServiceOuterClass.Role.mongo;
+            case "sql" -> AuthServiceOuterClass.Role.sql;
             default -> throw new EnumException(role, "rol");
         };
 
@@ -55,10 +64,26 @@ public class AuthServiceGrpcClient {
         return blockingStub.getUserDetails(request);
     }
 
+    public String loginUser() {
+        AuthServiceOuterClass.AuthenticateUserRequest request = AuthServiceOuterClass.AuthenticateUserRequest.newBuilder()
+                .setEmail(sqlUser)
+                .setPassword(sqlPass)
+                .build();
+
+        AuthServiceOuterClass.AuthenticateUserResponse response = blockingStub.authenticateUser(request);
+
+        if (!response.getSuccess()) {
+            throw new RuntimeException("Login failed: " + response.getMessage());
+        }
+
+        return response.getToken();
+    }
+
     @PreDestroy
     public void shutdown() {
         if (channel != null && !channel.isShutdown()) {
             channel.shutdown();
         }
     }
+
 }

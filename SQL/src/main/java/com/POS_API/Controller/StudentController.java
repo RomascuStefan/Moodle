@@ -3,7 +3,6 @@ package com.POS_API.Controller;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
 import com.POS_API.DTO.UserDetailDTO;
-import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.StudentService;
 import jakarta.validation.Valid;
@@ -38,10 +37,9 @@ public class StudentController {
 
     @GetMapping(produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(@RequestHeader("Authorization") String authorizationHeader) {
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN, PROFESOR, STUDENT));
+        //TODO links pentru fiecare rol
 
         List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
                 .map(student -> EntityModel.of(student,
@@ -66,12 +64,10 @@ public class StudentController {
 
     @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id, @RequestHeader("Authorization") String authorizationHeader) {
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
+        //TODO links pentru fiecare rol
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN, PROFESOR, STUDENT));
-
-        //if self link pentru editare profil
 
         StudentDTO student = studentService.findStudentById(id);
 
@@ -98,8 +94,7 @@ public class StudentController {
             @RequestHeader("Authorization") String authorizationHeader) {
 
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        UserDetailDTO userDetail = authService.getUserDetail(token, List.of(ADMIN, PROFESOR, STUDENT));
+        UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         List<EntityModel<DisciplinaDTO>> lectures = new ArrayList<>();
 
@@ -139,8 +134,7 @@ public class StudentController {
             @RequestBody @Valid StudentDTO studentDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
 
-        String token = HelperFunctions.extractToken(authorizationHeader);
-        authService.verifyRequest(token, List.of(ADMIN));
+        authService.verifyRequest(authorizationHeader, List.of(ADMIN));
 
         StudentDTO savedStudent = studentService.addStudent(studentDTO);
         authService.registerUser(savedStudent.getEmail(), studentDTO.getPassword(), "student");
