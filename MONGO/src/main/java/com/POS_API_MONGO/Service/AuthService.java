@@ -4,6 +4,7 @@ import auth.AuthServiceOuterClass;
 import com.POS_API_MONGO.Advice.Exception.IdmServiceException;
 import com.POS_API_MONGO.Advice.Exception.ResourceNotFoundException;
 import com.POS_API_MONGO.DTO.SqlServiceRequestDTO;
+import com.POS_API_MONGO.Helper.TokenValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -27,17 +28,14 @@ public class AuthService {
 
 
     private final AuthServiceGrpcClient authServiceGrpcClient;
-    private final RestTemplate restTemplate;
-
 
     @Value("${sql.service.url}")
     private String sqlServiceUrl;
 
 
     @Autowired
-    public AuthService(AuthServiceGrpcClient authServiceGrpcClient, RestTemplate restTemplate) {
+    public AuthService(AuthServiceGrpcClient authServiceGrpcClient) {
         this.authServiceGrpcClient = authServiceGrpcClient;
-        this.restTemplate = restTemplate;
     }
 
     public AuthServiceOuterClass.Role canAccessResource(String codDisciplina, String authorizationHeader, List<AuthServiceOuterClass.Role> allowedRoles) {
@@ -150,7 +148,15 @@ public class AuthService {
 
     private String getHeader() {
         try {
-            String token = authServiceGrpcClient.loginUser();
+            String token;
+
+            if(!TokenValidator.isTokenValid()) {
+                token = authServiceGrpcClient.loginUser();
+                TokenValidator.setToken(token);
+            }
+            else
+                token= TokenValidator.getToken();
+
 
             return "Bearer " + token;
         } catch (Exception e) {
