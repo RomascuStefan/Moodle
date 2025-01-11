@@ -29,15 +29,13 @@ import java.util.stream.Collectors;
 public class DisciplinaService {
 
     private final DisciplinaDAO disciplinaRepo;
-    private final RestTemplate restTemplate;
 
     @Value("${mongo.service.url}")
     private String mongoServiceUrl;
 
     @Autowired
-    public DisciplinaService(DisciplinaDAO disciplinaRepo, RestTemplate restTemplate) {
+    public DisciplinaService(DisciplinaDAO disciplinaRepo) {
         this.disciplinaRepo = disciplinaRepo;
-        this.restTemplate = restTemplate;
     }
 
     public List<DisciplinaDTO> findAllDiscipline() {
@@ -111,7 +109,7 @@ public class DisciplinaService {
 
         HttpEntity<MongoAddLectureDTO> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        String url = mongoServiceUrl + "/add";
+        String url = mongoServiceUrl;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> mongoResponse = restTemplate.postForEntity(url, requestEntity, String.class);
 
