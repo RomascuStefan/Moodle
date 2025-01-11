@@ -3,6 +3,7 @@ package com.POS_API.Service;
 import auth.AuthServiceOuterClass;
 import com.POS_API.Advice.Exception.IdmServiceException;
 import com.POS_API.DTO.UserDetailDTO;
+import com.POS_API.Helper.TokenValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -79,7 +80,15 @@ public class AuthService {
 
     public String getHeader() {
         try {
-            String token = authServiceGrpcClient.loginUser();
+            String token;
+
+            if(!TokenValidator.isTokenValid()) {
+                token = authServiceGrpcClient.loginUser();
+                TokenValidator.setToken(token);
+            }
+            else
+                token= TokenValidator.getToken();
+
 
             return "Bearer " + token;
         } catch (Exception e) {
