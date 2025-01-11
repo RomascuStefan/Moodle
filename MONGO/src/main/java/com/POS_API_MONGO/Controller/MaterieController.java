@@ -36,7 +36,7 @@ public class MaterieController {
         this.authService = authService;
     }
 
-    @PostMapping("/{codMaterie}/upload_file")
+    @PostMapping("/{codMaterie}")
     public ResponseEntity<EntityModel<AddFileResponseDTO>> uploadFile(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -58,14 +58,39 @@ public class MaterieController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{codMaterie}/download_file")
-    public ResponseEntity<Resource> downloadFile(
+    @GetMapping("/{codMaterie}")
+    public ResponseEntity<Object> FileRequstHandler(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
-            @RequestParam String locatie,
-            @RequestParam String numeFisier) {
+            @RequestParam String action,
+            @RequestParam(required = false) String locatie,
+            @RequestParam(required = false) String numeFisier) {
 
-        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
+        switch (action) {
+            case "download":
+                if (locatie == null || locatie.trim().isEmpty())
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File location is missing");
+
+                if(numeFisier == null || numeFisier.trim().isEmpty())
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File name is missing");
+
+                return downloadFile(authorizationHeader, codMaterie, locatie, numeFisier);
+
+            case "get_files":
+                return getAllFiles(authorizationHeader, codMaterie);
+
+            case "get_grading":
+                return getGrading(authorizationHeader, codMaterie);
+
+            default:
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid action parameter");
+        }
+    }
+
+
+    public ResponseEntity<Object> downloadFile(String authorizationHeader, String codMaterie, String locatie, String numeFisier) {
+
+        authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
 
         Resource resource = materieService.getFileResource(codMaterie, locatie, numeFisier);
 
@@ -75,9 +100,8 @@ public class MaterieController {
                 .body(resource);
     }
 
-    @GetMapping("/{codMaterie}/files")
-    public ResponseEntity<EntityModel<MaterieFilesResponseDTO>> getAllFiles(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @PathVariable String codMaterie) {
-        AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
+    public ResponseEntity<Object> getAllFiles(String authorizationHeader, String codMaterie) {
+        authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT));
 
         MaterieFilesResponseDTO response = materieService.getAllFilesForMaterie(codMaterie);
 
@@ -90,8 +114,7 @@ public class MaterieController {
     }
 
 
-    @GetMapping("/{codMaterie}/grading")
-    public ResponseEntity<EntityModel<GradingDTO>> getGrading(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @PathVariable String codMaterie) {
+    public ResponseEntity<Object> getGrading(String authorizationHeader, String codMaterie) {
         AuthServiceOuterClass.Role role = authService.canAccessResource(codMaterie, authorizationHeader, List.of(PROFESOR, STUDENT, ADMIN));
 
         GradingDTO grading = materieService.getGradingByCodMaterie(codMaterie);
@@ -109,7 +132,7 @@ public class MaterieController {
     }
 
 
-    @PutMapping("/{codMaterie}/grading")
+    @PatchMapping("/{codMaterie}")
     public ResponseEntity<EntityModel<GradingDTO>> modifyGrading(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -128,7 +151,7 @@ public class MaterieController {
         return ResponseEntity.ok(gradingModel);
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<String> addMaterie(@RequestHeader(value = "Authorization", required = false) String authorizationHeader, @RequestBody CreateMaterieRequestDTO createMaterieRequestDTO) {
         authService.verifyRequest(authorizationHeader, List.of(SQL));
 
@@ -137,7 +160,7 @@ public class MaterieController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Materie creata");
     }
 
-    @DeleteMapping("/{codMaterie}/delete_file")
+    @DeleteMapping("/{codMaterie}")
     public ResponseEntity<EntityModel<DeleteFileResponseDTO>> deleteFisierInLaborator(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -154,7 +177,7 @@ public class MaterieController {
                 responseDTO,
                 linkTo(methodOn(MaterieController.class).deleteFisierInLaborator(authorizationHeader, codMaterie, locatie, numeFisier)).withSelfRel().withType("DELETE"),
                 linkTo(methodOn(MaterieController.class).getAllFiles(authorizationHeader, codMaterie)).withRel("all-files").withType("GET"),
-                linkTo(methodOn(MaterieController.class).uploadFile(authorizationHeader, codMaterie,null,null)).withRel("upload-file").withType("POST")
+                linkTo(methodOn(MaterieController.class).uploadFile(authorizationHeader, codMaterie, null, null)).withRel("upload-file").withType("POST")
 
         );
 
