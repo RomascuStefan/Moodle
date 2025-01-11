@@ -161,7 +161,7 @@ public class DisciplinaController {
     }
 
 
-    @PostMapping(value = "/{cod}/enroll", consumes = "application/JSON", produces = "application/JSON")
+    @PostMapping(value = "/{cod}/students", consumes = "application/JSON", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<EnrollResponseDTO>>> enrollStudents(
             @PathVariable String cod,
             @RequestBody @Valid EnrollStudentsDTO enrollStudentsDTO,
