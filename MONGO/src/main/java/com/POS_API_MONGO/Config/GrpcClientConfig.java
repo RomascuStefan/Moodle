@@ -3,15 +3,22 @@ package com.POS_API_MONGO.Config;
 import auth.AuthServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GrpcClientConfig {
 
+    @Value("${idm.service.host}")
+    private String grpcHost;
+
+    @Value("${idm.service.port}")
+    private int grpcPort;
+
     @Bean
     public ManagedChannel grpcChannel() {
-        return ManagedChannelBuilder.forAddress("localhost", 50051)
+        return ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
                 .usePlaintext()
                 .build();
     }

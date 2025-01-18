@@ -35,3 +35,4 @@ build/
 ### Files uploaded ###
 /src/main/resources/Files
 
+.env
