@@ -1,14 +1,24 @@
 from peewee import *
 from datetime import datetime
 import bcrypt
+from dotenv import load_dotenv
+import os
 
-db = MySQLDatabase('academia_idm', user='root', password='parola', host='localhost', port=3308)
+load_dotenv()
+
+db_name = os.getenv('IDM_DB_NAME')
+db_user = os.getenv('IDM_DB_USER')
+db_password = os.getenv('IDM_DB_PASSWORD')
+db_host = os.getenv('IDM_DB_HOST')
+db_port = int(os.getenv('IDM_DB_PORT'))
+
+db = MySQLDatabase(db_name, user=db_user, password=db_password, host=db_host, port=db_port)
 
 class User(Model):
     email = CharField(unique=True, column_name='email')
     password = CharField(column_name='parola')
     role = CharField(column_name='rol')
-    salt = CharField(column_name='salt')  # Adăugăm salt-ul în baza de date
+    salt = CharField(column_name='salt')
 
     class Meta:
         database = db
@@ -16,7 +26,6 @@ class User(Model):
 
     @staticmethod
     def hash_password(password, salt):
-        # Folosim salt-ul generat pentru a hash-ui parola
         concatenated_password = password + salt
         hashed_password = bcrypt.hashpw(concatenated_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         return hashed_password
@@ -29,6 +38,5 @@ class User(Model):
 
     @staticmethod
     def generateSalt():
-        # Generăm salt-ul pe server folosind data și ora curentă
         now = datetime.now()
         return f"{now.hour:02}{now.minute:02}{now.second:02}"
