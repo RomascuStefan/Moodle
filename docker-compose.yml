@@ -1,0 +1,46 @@
+services:
+  idm-service:
+    build:
+      context: ./IDM
+      dockerfile: Dockerfile
+    container_name: idm-service
+    ports:
+      - "50051:50051"
+    env_file:
+      - .env
+    networks:
+      - pos-proiect-network
+
+  sql-service:
+    build:
+      context: ./SQL
+      dockerfile: Dockerfile
+    container_name: sql-service
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - pos-proiect-network
+    depends_on:
+      - idm-service
+    command: ["sh", "-c", "sleep 5 && java -jar app.jar"]
+
+  mongo-service:
+    build:
+      context: ./MONGO
+      dockerfile: Dockerfile
+    container_name: mongo-service
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    networks:
+      - pos-proiect-network
+    depends_on:
+      - idm-service
+    command: ["sh", "-c", "sleep 5 && java -jar app.jar"]
+
+networks:
+  pos-proiect-network:
+    external: true
