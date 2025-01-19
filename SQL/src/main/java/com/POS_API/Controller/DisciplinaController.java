@@ -84,9 +84,6 @@ public class DisciplinaController {
 
                     if (role == ADMIN) {
                         links.add(linkTo(methodOn(DisciplinaController.class)
-                                .addDisciplina(null, null))
-                                .withRel("add-disciplina").withType("POST"));
-                        links.add(linkTo(methodOn(DisciplinaController.class)
                                 .enrollStudents(disciplina.getCod(), null, null))
                                 .withRel("enroll-students").withType("POST"));
                     }
@@ -113,14 +110,19 @@ public class DisciplinaController {
                         .withRel("current_page")
                         .withType("GET")
         );
+        if (role == ADMIN) {
+            collectionModel.add(linkTo(methodOn(DisciplinaController.class)
+                    .addDisciplina(null, null))
+                    .withRel("add-disciplina").withType("POST"));
+        }
         if (role == STUDENT) {
             collectionModel.add(linkTo(methodOn(StudentController.class)
-                    .getDisciplineForStudent(null,null))
+                    .getDisciplineForStudent(null, null))
                     .withRel("view-your-discipline").withType("GET"));
         }
         if (role == PROFESOR) {
             collectionModel.add(linkTo(methodOn(ProfesorController.class)
-                    .findDisciplinaByProfesorId(null,null))
+                    .findDisciplinaByProfesorId(null, null))
                     .withRel("view-your-discipline").withType("GET"));
         }
         if (fromIndex > 0) {
