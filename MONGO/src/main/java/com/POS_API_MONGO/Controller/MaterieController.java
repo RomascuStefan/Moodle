@@ -37,7 +37,7 @@ public class MaterieController {
         this.authService = authService;
     }
 
-    @PostMapping("/{codMaterie}")
+    @PostMapping(value = "/{codMaterie}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EntityModel<AddFileResponseDTO>> uploadFile(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -59,7 +59,7 @@ public class MaterieController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{codMaterie}")
+    @GetMapping(value = "/{codMaterie}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> FileRequstHandler(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -133,7 +133,7 @@ public class MaterieController {
     }
 
 
-    @PatchMapping("/{codMaterie}")
+    @PatchMapping(value = "/{codMaterie}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityModel<GradingDTO>> modifyGrading(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
@@ -161,7 +161,7 @@ public class MaterieController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Materie creata");
     }
 
-    @DeleteMapping("/{codMaterie}")
+    @DeleteMapping(value = "/{codMaterie}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityModel<DeleteFileResponseDTO>> deleteFisierInLaborator(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @PathVariable String codMaterie,
