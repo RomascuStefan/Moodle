@@ -13,4 +13,6 @@ public interface StudentDAO extends JpaRepository<Student,Integer> {
     Boolean existsByEmail(String email);
     Boolean existsByIdAndEmail(int id, String email);
 
+    Optional<Student> findStudentByEmail(String email);
+
 }

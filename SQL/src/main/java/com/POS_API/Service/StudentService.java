@@ -79,5 +79,13 @@ public class StudentService {
 
         throw new IdmServiceException(HttpStatus.FORBIDDEN, "FORBIDDEN");
     }
+
+    public int findStudentIdByEmail(String email) {
+        Optional<Student> student= studentRepo.findStudentByEmail(email);
+        if(student.isEmpty())
+            throw new IdmServiceException(HttpStatus.FORBIDDEN,"Not a student");
+
+        return studentRepo.findStudentByEmail(email).get().getId();
+    }
 }
 
