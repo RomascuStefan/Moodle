@@ -25,6 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/student")
+@CrossOrigin(origins = "${frontend.origin}")
 public class StudentController {
 
     private final StudentService studentService;
@@ -47,7 +48,7 @@ public class StudentController {
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(StudentController.class)
-                                .getDisciplineForStudent(student.getId(), null))
+                                .getDisciplineForStudent(null))
                                 .withRel("lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
@@ -88,20 +89,23 @@ public class StudentController {
                         .withRel("all-students")
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
-                        .getDisciplineForStudent(id, null))
+                        .getDisciplineForStudent(null))
                         .withRel("lectures")
                         .withType("GET"));
 
         return ResponseEntity.ok(studentModel);
     }
 
-    @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
+    @GetMapping(value = "/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent(
-            @PathVariable int id,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
+
+        // if role admin trebuie sa existe un param gen idStudent
+
+        int id = studentService.findStudentIdByEmail(userDetail.getEmail());
 
         List<EntityModel<DisciplinaDTO>> lectures = new ArrayList<>();
 
@@ -127,7 +131,7 @@ public class StudentController {
 
 
         Link selfLink = linkTo(methodOn(StudentController.class)
-                .getDisciplineForStudent(id, null))
+                .getDisciplineForStudent(null))
                 .withSelfRel()
                 .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(lectures, selfLink);

@@ -25,6 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/profesori")
+@CrossOrigin(origins = "${frontend.origin}")
 public class ProfesorController {
 
     private final ProfesorService profesorService;
@@ -80,7 +81,7 @@ public class ProfesorController {
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(ProfesorController.class)
-                                .findDisciplinaByProfesorId(profesor.getId(), null))
+                                .findDisciplinaByProfesorId(null))
                                 .withRel("lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
@@ -133,7 +134,7 @@ public class ProfesorController {
                 .withSelfRel()
                 .withType("GET");
         Link findDisciplinaLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class)
-                        .findDisciplinaByProfesorId(id, null))
+                        .findDisciplinaByProfesorId(null))
                 .withRel("findDisciplinaByProfesorId")
                 .withType("GET");
 
@@ -143,12 +144,12 @@ public class ProfesorController {
         return ResponseEntity.ok(profesorJSON);
     }
 
-    @GetMapping(value = "/{id}/lectures", produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    @GetMapping(value = "/lectures", produces = "application/JSON")
+    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
-        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
+        String email = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT)).getEmail();
 
-        int profId = profesorService.findProfesorById(id).getId();
+        int profId = profesorService.findProfesorByEmail(email).getId();
 
         List<DisciplinaDTO> discipline = disciplinaService.findDisciplinaByProfesorId(profId);
 
@@ -163,7 +164,7 @@ public class ProfesorController {
 
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplinaModels,
                 linkTo(methodOn(ProfesorController.class)
-                        .findProfesorById(id, null))
+                        .findProfesorById(profId, null))
                         .withRel("profesor")
                         .withType("GET"),
                 linkTo(methodOn(ProfesorController.class)

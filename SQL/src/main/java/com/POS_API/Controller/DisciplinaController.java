@@ -26,6 +26,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/lectures")
+@CrossOrigin(origins = "${frontend.origin}", exposedHeaders = "Authorization")
 public class DisciplinaController {
 
     private final DisciplinaService disciplinaService;
@@ -80,6 +81,7 @@ public class DisciplinaController {
                             .findDisciplinaByCod(disciplina.getCod(), null))
                             .withSelfRel().withType("GET"));
 
+
                     if (role == ADMIN) {
                         links.add(linkTo(methodOn(DisciplinaController.class)
                                 .addDisciplina(null, null))
@@ -111,6 +113,16 @@ public class DisciplinaController {
                         .withRel("current_page")
                         .withType("GET")
         );
+        if (role == STUDENT) {
+            collectionModel.add(linkTo(methodOn(StudentController.class)
+                    .getDisciplineForStudent(null))
+                    .withRel("view-your-discipline").withType("GET"));
+        }
+        if (role == PROFESOR) {
+            collectionModel.add(linkTo(methodOn(ProfesorController.class)
+                    .findDisciplinaByProfesorId(null))
+                    .withRel("view-your-discipline").withType("GET"));
+        }
         if (fromIndex > 0) {
             collectionModel.add(
                     linkTo(methodOn(DisciplinaController.class)
