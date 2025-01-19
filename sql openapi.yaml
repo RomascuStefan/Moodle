@@ -1,0 +1,1435 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI SQL Service
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: SQL Service POS
+paths:
+  /api/academia/validate/modify_resource:
+    post:
+      tags:
+      - mongo-req-controller
+      operationId: canModifyResource
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MongoRequestDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/academia/validate/access_resource:
+    post:
+      tags:
+      - mongo-req-controller
+      operationId: canAccessResource
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MongoRequestDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/academia/student:
+    get:
+      tags:
+      - student-controller
+      operationId: findAllStudents
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
+      - name: items_per_page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "10"
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelStudentDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelStudentDTO"
+    post:
+      tags:
+      - student-controller
+      operationId: addStudent
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/JSON:
+            schema:
+              $ref: "#/components/schemas/StudentDTO"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+  /api/academia/profesori:
+    get:
+      tags:
+      - profesor-controller
+      operationId: findAllProfesori
+      parameters:
+      - name: acad_rank
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nume
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: an_studiu
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
+      - name: items_per_page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "10"
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelProfesorDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelProfesorDTO"
+    post:
+      tags:
+      - profesor-controller
+      operationId: addProfesor
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/JSON:
+            schema:
+              $ref: "#/components/schemas/ProfesorDTO"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfesorDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+  /api/academia/lectures:
+    get:
+      tags:
+      - disciplina-controller
+      operationId: findAllDiscipline
+      parameters:
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
+      - name: items_per_page
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "10"
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+    post:
+      tags:
+      - disciplina-controller
+      operationId: addDisciplina
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/JSON:
+            schema:
+              $ref: "#/components/schemas/DisciplinaDTO"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisciplinaDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelDisciplinaDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelDisciplinaDTO"
+  /api/academia/lectures/{cod}/students:
+    post:
+      tags:
+      - disciplina-controller
+      operationId: enrollStudents
+      parameters:
+      - name: cod
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/JSON:
+            schema:
+              $ref: "#/components/schemas/EnrollStudentsDTO"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollStudentsDTO"
+        required: true
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelEnrollResponseDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelEnrollResponseDTO"
+  /api/academia/student/{id}:
+    get:
+      tags:
+      - student-controller
+      operationId: findStudentById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+  /api/academia/student/lectures:
+    get:
+      tags:
+      - student-controller
+      operationId: getDisciplineForStudent
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+  /api/academia/profesori/{id}:
+    get:
+      tags:
+      - profesor-controller
+      operationId: findProfesorById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+  /api/academia/profesori/lectures:
+    get:
+      tags:
+      - profesor-controller
+      operationId: findDisciplinaByProfesorId
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionModelEntityModelDisciplinaDTO"
+  /api/academia/lectures/{cod}:
+    get:
+      tags:
+      - disciplina-controller
+      operationId: findDisciplinaByCod
+      parameters:
+      - name: cod
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      responses:
+        "500":
+          description: "Mongo Service Error: Internal Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "409":
+          description: "Mongo Service Error: Conflict"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelDisciplinaDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelDisciplinaDTO"
+components:
+  schemas:
+    MongoRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        role:
+          type: string
+        codDisciplina:
+          type: string
+    StudentDTO:
+      required:
+      - anStudiu
+      - cicluStudii
+      - email
+      - grupa
+      - nume
+      - password
+      - prenume
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nume:
+          type: string
+        prenume:
+          type: string
+        email:
+          type: string
+        cicluStudii:
+          type: string
+        anStudiu:
+          type: string
+        grupa:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+    EntityModelStudentDTO:
+      required:
+      - anStudiu
+      - cicluStudii
+      - email
+      - grupa
+      - nume
+      - password
+      - prenume
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nume:
+          type: string
+        prenume:
+          type: string
+        email:
+          type: string
+        cicluStudii:
+          type: string
+        anStudiu:
+          type: string
+        grupa:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        _links:
+          $ref: "#/components/schemas/Links"
+    Links:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Link"
+    ProfesorDTO:
+      required:
+      - email
+      - gradDidactic
+      - nume
+      - password
+      - prenume
+      - tipAsociere
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nume:
+          type: string
+        prenume:
+          type: string
+        email:
+          type: string
+        gradDidactic:
+          type: string
+        tipAsociere:
+          type: string
+        afiliere:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+    EntityModelProfesorDTO:
+      required:
+      - email
+      - gradDidactic
+      - nume
+      - password
+      - prenume
+      - tipAsociere
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nume:
+          type: string
+        prenume:
+          type: string
+        email:
+          type: string
+        gradDidactic:
+          type: string
+        tipAsociere:
+          type: string
+        afiliere:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        _links:
+          $ref: "#/components/schemas/Links"
+    DisciplinaDTO:
+      required:
+      - anStudiu
+      - categorieDisciplina
+      - numeDisciplina
+      - tipDisciplina
+      - tipExaminare
+      - titularId
+      type: object
+      properties:
+        cod:
+          type: string
+        titularId:
+          type: string
+          writeOnly: true
+        numeTitular:
+          type: string
+        numeDisciplina:
+          type: string
+        anStudiu:
+          type: string
+        tipDisciplina:
+          type: string
+        categorieDisciplina:
+          type: string
+        tipExaminare:
+          type: string
+    EntityModelDisciplinaDTO:
+      required:
+      - anStudiu
+      - categorieDisciplina
+      - numeDisciplina
+      - tipDisciplina
+      - tipExaminare
+      - titularId
+      type: object
+      properties:
+        cod:
+          type: string
+        titularId:
+          type: string
+          writeOnly: true
+        numeTitular:
+          type: string
+        numeDisciplina:
+          type: string
+        anStudiu:
+          type: string
+        tipDisciplina:
+          type: string
+        categorieDisciplina:
+          type: string
+        tipExaminare:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    EnrollStudentsDTO:
+      required:
+      - students
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            type: integer
+            format: int32
+    CollectionModelEntityModelEnrollResponseDTO:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            enrollResponseDTOList:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelEnrollResponseDTO"
+        _links:
+          $ref: "#/components/schemas/Links"
+    EntityModelEnrollResponseDTO:
+      type: object
+      properties:
+        message:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    CollectionModelEntityModelStudentDTO:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            studentDTOList:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+        _links:
+          $ref: "#/components/schemas/Links"
+    CollectionModelEntityModelDisciplinaDTO:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            disciplinaDTOList:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelDisciplinaDTO"
+        _links:
+          $ref: "#/components/schemas/Links"
+    CollectionModelEntityModelProfesorDTO:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            profesorDTOList:
+              type: array
+              items:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+        _links:
+          $ref: "#/components/schemas/Links"
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean

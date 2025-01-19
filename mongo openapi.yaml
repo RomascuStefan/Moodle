@@ -1,0 +1,485 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI MONGO Service
+  version: v0
+servers:
+- url: http://localhost:8081
+  description: Mongo service POS
+paths:
+  /api/academia_mongo:
+    post:
+      tags:
+      - materie-controller
+      operationId: addMaterie
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMaterieRequestDTO"
+        required: true
+      responses:
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "409":
+          description: "Conflict: Duplicate Entry Detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid File Location"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "Forbidden: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "401":
+          description: "Unauthorized: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/academia_mongo/{codMaterie}:
+    get:
+      tags:
+      - materie-controller
+      operationId: FileRequstHandler
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: codMaterie
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: locatie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: numeFisier
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "409":
+          description: "Conflict: Duplicate Entry Detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid File Location"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "Forbidden: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "401":
+          description: "Unauthorized: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      tags:
+      - materie-controller
+      operationId: uploadFile
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: codMaterie
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: locatie
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "409":
+          description: "Conflict: Duplicate Entry Detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid File Location"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "Forbidden: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "401":
+          description: "Unauthorized: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelAddFileResponseDTO"
+    delete:
+      tags:
+      - materie-controller
+      operationId: deleteFisierInLaborator
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: codMaterie
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: locatie
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: numeFisier
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "409":
+          description: "Conflict: Duplicate Entry Detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid File Location"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "Forbidden: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "401":
+          description: "Unauthorized: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelDeleteFileResponseDTO"
+    patch:
+      tags:
+      - materie-controller
+      operationId: modifyGrading
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      - name: codMaterie
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradingDTO"
+        required: true
+      responses:
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "409":
+          description: "Conflict: Duplicate Entry Detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid File Location"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "Forbidden: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "401":
+          description: "Unauthorized: IDM Service Error"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelGradingDTO"
+components:
+  schemas:
+    CreateMaterieRequestDTO:
+      type: object
+      properties:
+        codMaterie:
+          type: string
+        examinare:
+          type: string
+    EntityModelAddFileResponseDTO:
+      type: object
+      properties:
+        fileName:
+          type: string
+        location:
+          type: string
+        message:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    Links:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Link"
+    GradingDTO:
+      type: object
+      properties:
+        probeExaminare:
+          type: array
+          items:
+            $ref: "#/components/schemas/Test"
+    Test:
+      type: object
+      properties:
+        nume:
+          type: string
+        pondere:
+          type: number
+          format: double
+    EntityModelGradingDTO:
+      type: object
+      properties:
+        probeExaminare:
+          type: array
+          items:
+            $ref: "#/components/schemas/Test"
+        _links:
+          $ref: "#/components/schemas/Links"
+    EntityModelDeleteFileResponseDTO:
+      type: object
+      properties:
+        fileName:
+          type: string
+        location:
+          type: string
+        message:
+          type: string
+        _links:
+          $ref: "#/components/schemas/Links"
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
