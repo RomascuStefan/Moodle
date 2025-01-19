@@ -1,0 +1,60 @@
+syntax = "proto3";
+package auth;
+
+service AuthService {
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserResponse);
+  rpc GetUserDetails(GetUserDetailsRequest) returns (GetUserDetailsResponse);
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+message RegisterUserRequest {
+  string email = 1;
+  string password = 2;
+  Role role = 3;
+}
+
+message RegisterUserResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message AuthenticateUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthenticateUserResponse {
+  string token = 1;
+  string message = 2;
+  bool success = 3;
+}
+
+message GetUserDetailsRequest {
+  string token = 1;
+}
+
+message GetUserDetailsResponse {
+  string email = 1;
+  Role role = 2;
+  bool success = 3;
+  string message = 4;
+}
+
+message VerifyTokenRequest {
+  string token = 1;
+}
+
+message VerifyTokenResponse {
+  bool valid = 1;
+  string message = 2;
+  Role role =3;
+}
+
+enum Role {
+  admin = 0;
+  profesor = 1;
+  student = 2;
+  mongo=3;
+  sql=4;
+}

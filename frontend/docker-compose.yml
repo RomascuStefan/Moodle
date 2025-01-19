@@ -1,0 +1,22 @@
+services:
+  gateway-envoy:
+    build:
+      context: ./config
+      dockerfile: Dockerfile-gateway
+    ports:
+      - '9090:9090'
+    networks:
+      - gateway-network
+
+  idm-server:
+    build:
+      context: ../IDM
+      dockerfile: Dockerfile
+    ports:
+      - '50051:50051' # Serverul IDM gRPC
+    networks:
+      - gateway-network
+
+networks:
+  gateway-network:
+    driver: bridge
