@@ -2,9 +2,7 @@ package com.POS_API.Controller;
 
 import com.POS_API.Advice.Exception.PaginatedViewOutOfBoundsException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
-import com.POS_API.DTO.DisciplinaDTO;
-import com.POS_API.DTO.ProfesorDTO;
-import com.POS_API.DTO.UserDetailDTO;
+import com.POS_API.DTO.*;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.DisciplinaService;
@@ -136,9 +134,8 @@ public class ProfesorController {
     @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<ProfesorDTO>> findProfesorById(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
-        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
+        UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-        //if self -> link editare profil
 
         ProfesorDTO profesor = profesorService.findProfesorById(id);
 
@@ -155,6 +152,15 @@ public class ProfesorController {
 
         profesorJSON.add(selfLink);
         profesorJSON.add(findDisciplinaLink);
+
+        if(profesorService.existByEmailAndId(userDetailDTO.getEmail(), profesor.getId()))
+        {
+            Link patchProfesor = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class)
+                            .updateProfesor(null,null,null))
+                    .withRel("patchProfesor")
+                    .withType("PATCH");
+            profesorJSON.add(patchProfesor);
+        }
 
         return ResponseEntity.ok(profesorJSON);
     }
@@ -220,4 +226,53 @@ public class ProfesorController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(profesorModel);
     }
+
+
+    @PatchMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<EntityModel<ProfesorDTO>> updateProfesor(
+            @RequestParam(required = false) String userId,
+            @RequestBody @Valid ProfesorPatchDTO profesorPatchDTO,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
+        UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR));
+
+        int id;
+
+        if (userDetailDTO.getRole() == ADMIN) {
+            if (userId == null || userId.trim().isEmpty()) {
+                throw new RequestParamWrong("userId", "", "no profesor selected");
+            } else {
+                id = HelperFunctions.stringToInt(userId, "user id");
+            }
+        } else {
+            id = profesorService.findProfesorByEmail(userDetailDTO.getEmail()).getId();
+        }
+
+        ProfesorDTO updatedProfesor = profesorService.patchProfesor(id, profesorPatchDTO);
+
+        EntityModel<ProfesorDTO> profesorModel = EntityModel.of(updatedProfesor,
+                linkTo(methodOn(ProfesorController.class)
+                        .findProfesorById(id, null))
+                        .withSelfRel()
+                        .withType("PATCH"),
+                linkTo(methodOn(ProfesorController.class)
+                        .findAllProfesori(null, null, null, null, null, null))
+                        .withRel("all-professors")
+                        .withType("GET"),
+                linkTo(methodOn(ProfesorController.class)
+                        .findDisciplinaByProfesorId(Integer.toString(id), null))
+                        .withRel("lectures")
+                        .withType("GET"));
+
+        if (userDetailDTO.getRole() == ADMIN) {
+            profesorModel.add(linkTo(methodOn(ProfesorController.class)
+                    .addProfesor(null, null))
+                    .withRel("add-profesor")
+                    .withType("POST"));
+        }
+
+        return ResponseEntity.ok(profesorModel);
+    }
+
+
 }

@@ -5,6 +5,7 @@ import com.POS_API.Advice.Exception.PaginatedViewOutOfBoundsException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
+import com.POS_API.DTO.StudentPatchDTO;
 import com.POS_API.DTO.UserDetailDTO;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
@@ -126,12 +127,9 @@ public class StudentController {
     }
 
 
-
     @GetMapping(value = "/{id}", produces = "application/JSON")
     public ResponseEntity<EntityModel<StudentDTO>> findStudentById(@PathVariable int id, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
-
-        //if self -> link editare profil
+        UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         StudentDTO student = studentService.findStudentById(id);
 
@@ -141,13 +139,22 @@ public class StudentController {
                         .withSelfRel()
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
-                        .findAllStudents(null,null,null))
+                        .findAllStudents(null, null, null))
                         .withRel("all-students")
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
-                        .getDisciplineForStudent(null,null))
+                        .getDisciplineForStudent(null, null))
                         .withRel("lectures")
                         .withType("GET"));
+
+        if (studentService.isSelfReq(id, userDetailDTO.getEmail())) {
+            studentModel.add(
+                    linkTo(methodOn(StudentController.class)
+                            .updateStudent(null, null, null))
+                            .withRel("update-student")
+                            .withType("PATCH")
+            );
+        }
 
         return ResponseEntity.ok(studentModel);
     }
@@ -162,11 +169,10 @@ public class StudentController {
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
         if (userDetail.getRole() == ADMIN) {
             if (userId == null || userId.trim().isEmpty())
-                throw new RequestParamWrong("", "studentId", "no student selected");
+                throw new RequestParamWrong("studentId", "", "no student selected");
             else
                 id = HelperFunctions.stringToInt(userId, "student id");
-        }
-        else
+        } else
             id = studentService.findStudentIdByEmail(userDetail.getEmail());
 
         List<EntityModel<DisciplinaDTO>> lectures = new ArrayList<>();
@@ -193,7 +199,7 @@ public class StudentController {
 
 
         Link selfLink = linkTo(methodOn(StudentController.class)
-                .getDisciplineForStudent(null,null))
+                .getDisciplineForStudent(null, null))
                 .withSelfRel()
                 .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(lectures, selfLink);
@@ -219,9 +225,62 @@ public class StudentController {
                         .withSelfRel()
                         .withType("POST"),
                 linkTo(methodOn(StudentController.class)
-                        .findAllStudents(null,null,null))
+                        .findAllStudents(null, null, null))
                         .withRel("all-students")
                         .withType("GET"));
         return ResponseEntity.status(HttpStatus.CREATED).body(studentModel);
     }
+
+    @PatchMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<EntityModel<StudentDTO>> updateStudent(
+            @RequestParam(required = false) String userId,
+            @RequestBody @Valid StudentPatchDTO studentPatchDTO,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
+        UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, STUDENT));
+        int id;
+
+        if (userDetailDTO.getRole() == ADMIN) {
+            if (userId == null || userId.trim().isEmpty()) {
+                throw new RequestParamWrong("userId", "", "no student selected");
+            } else {
+                id = HelperFunctions.stringToInt(userId, "user id");
+            }
+        } else {
+            id = studentService.findStudentIdByEmail(userDetailDTO.getEmail());
+        }
+
+        StudentDTO updatedStudent = studentService.patchStudent(id, studentPatchDTO);
+
+        EntityModel<StudentDTO> studentModel = EntityModel.of(
+                updatedStudent,
+                linkTo(methodOn(StudentController.class)
+                        .findStudentById(id, authorizationHeader))
+                        .withSelfRel()
+                        .withType("PATCH"),
+                linkTo(methodOn(StudentController.class)
+                        .findAllStudents(null, null, authorizationHeader))
+                        .withRel("all-students")
+                        .withType("GET")
+        );
+
+        if (userDetailDTO.getRole() == ADMIN) {
+            studentModel.add(
+                    linkTo(methodOn(StudentController.class)
+                            .addStudent(null, authorizationHeader))
+                            .withRel("add-student")
+                            .withType("POST")
+            );
+        }
+
+        studentModel.add(
+                linkTo(methodOn(StudentController.class)
+                        .getDisciplineForStudent(String.valueOf(id), authorizationHeader))
+                        .withRel("lectures")
+                        .withType("GET")
+        );
+
+        return ResponseEntity.ok(studentModel);
+    }
+
 }

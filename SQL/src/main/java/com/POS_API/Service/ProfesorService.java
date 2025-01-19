@@ -1,12 +1,11 @@
 package com.POS_API.Service;
 
-import com.POS_API.Advice.Exception.RequestParamWrong;
-import com.POS_API.Advice.Exception.ResourceNotFoundException;
-import com.POS_API.Advice.Exception.UniqueKeyException;
-import com.POS_API.Advice.Exception.UnprocesableEntityException;
+import com.POS_API.Advice.Exception.*;
 import com.POS_API.DTO.ProfesorDTO;
+import com.POS_API.DTO.ProfesorPatchDTO;
 import com.POS_API.Mapper.ProfesorMapper;
 import com.POS_API.Model.Enums.GradDidactic;
+import com.POS_API.Model.Enums.TipAsociere;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.ProfesorDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,4 +105,54 @@ public class ProfesorService {
             throw new RequestParamWrong("anStudii", anStudii, ex.getMessage());
         }
     }
+
+    public ProfesorDTO patchProfesor(int id, ProfesorPatchDTO profesorPatchDTO) {
+        Optional<Profesor> optionalProfesor = profesorRepo.findById(id);
+
+        if (optionalProfesor.isEmpty()) {
+            throw new ResourceNotFoundException("Profesor", "id", id);
+        }
+
+        Profesor profesor = optionalProfesor.get();
+
+        if (profesorPatchDTO.getNume() != null && !profesorPatchDTO.getNume().isEmpty()) {
+            profesor.setNume(profesorPatchDTO.getNume());
+        }
+
+        if (profesorPatchDTO.getPrenume() != null && !profesorPatchDTO.getPrenume().isEmpty()) {
+            profesor.setPrenume(profesorPatchDTO.getPrenume());
+        }
+
+        if (profesorPatchDTO.getGradDidactic() != null && !profesorPatchDTO.getGradDidactic().isEmpty()) {
+            try {
+                GradDidactic gradDidactic = GradDidactic.valueOf(profesorPatchDTO.getGradDidactic());
+                profesor.setGradDidactic(gradDidactic);
+            } catch (IllegalArgumentException e) {
+                throw new EnumException("grad didactic", profesorPatchDTO.getGradDidactic());
+            }
+        }
+
+        if (profesorPatchDTO.getTipAsociere() != null && !profesorPatchDTO.getTipAsociere().isEmpty()) {
+            try {
+                TipAsociere tipAsociere = TipAsociere.valueOf(profesorPatchDTO.getTipAsociere());
+                profesor.setTipAsociere(tipAsociere);
+            } catch (IllegalArgumentException e) {
+                throw new EnumException("tip asociere", profesorPatchDTO.getTipAsociere());
+            }
+        }
+
+        if (profesorPatchDTO.getAfiliere() != null && !profesorPatchDTO.getAfiliere().isEmpty()) {
+            profesor.setAfiliere(profesorPatchDTO.getAfiliere());
+        }
+
+        Profesor updatedProfesor = profesorRepo.save(profesor);
+
+        return ProfesorMapper.toDTO(updatedProfesor);
+    }
+
+    public boolean existByEmailAndId(String email, int id){
+        return profesorRepo.existsByEmailAndId(email,id);
+    }
+
+
 }

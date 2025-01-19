@@ -16,6 +16,8 @@ public interface ProfesorDAO extends JpaRepository<Profesor, Integer> {
 
     Optional<Profesor> findProfesorByEmail(String email);
 
+    Boolean existsByEmailAndId(String email, int id);
+
 }
 
 

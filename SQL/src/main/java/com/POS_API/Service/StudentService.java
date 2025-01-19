@@ -1,14 +1,13 @@
 package com.POS_API.Service;
 
-import com.POS_API.Advice.Exception.IdmServiceException;
-import com.POS_API.Advice.Exception.ResourceNotFoundException;
-import com.POS_API.Advice.Exception.UniqueKeyException;
-import com.POS_API.Advice.Exception.UnprocesableEntityException;
+import com.POS_API.Advice.Exception.*;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
+import com.POS_API.DTO.StudentPatchDTO;
 import com.POS_API.Mapper.DisciplinaMapper;
 import com.POS_API.Mapper.StudentMapper;
 import com.POS_API.Model.Disciplina;
+import com.POS_API.Model.Enums.CicluStudii;
 import com.POS_API.Model.Student;
 import com.POS_API.Repository.StudentDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +87,46 @@ public class StudentService {
 
 
         return studentRepo.findStudentByEmail(email).get().getId();
+    }
+
+    public StudentDTO patchStudent(int id, StudentPatchDTO studentPatchDTO) {
+        Optional<Student> optionalStudent = studentRepo.findById(id);
+
+        if (optionalStudent.isEmpty()) {
+            throw new ResourceNotFoundException("Student", "id", id);
+        }
+
+        Student student = optionalStudent.get();
+
+        if (studentPatchDTO.getNume() != null && !studentPatchDTO.getNume().isEmpty()) {
+            student.setNume(studentPatchDTO.getNume());
+        }
+
+        if (studentPatchDTO.getPrenume() != null && !studentPatchDTO.getPrenume().isEmpty()) {
+            student.setPrenume(studentPatchDTO.getPrenume());
+        }
+
+        if (studentPatchDTO.getCicluStudii() != null && !studentPatchDTO.getCicluStudii().isEmpty()) {
+            CicluStudii cicluStudii;
+            try {
+                cicluStudii = CicluStudii.valueOf(studentPatchDTO.getCicluStudii());
+                student.setCicluStudii(cicluStudii);
+            } catch (IllegalArgumentException e) {
+                throw new EnumException("ciclu studii", studentPatchDTO.getCicluStudii());
+            }
+        }
+
+        if (studentPatchDTO.getAnStudiu() != null && !studentPatchDTO.getAnStudiu().isEmpty()) {
+            student.setAnStudiu(Integer.parseInt(studentPatchDTO.getAnStudiu()));
+        }
+
+        if (studentPatchDTO.getGrupa() != null && !studentPatchDTO.getGrupa().isEmpty()) {
+            student.setGrupa(studentPatchDTO.getGrupa());
+        }
+
+        Student updatedStudent = studentRepo.save(student);
+
+        return StudentMapper.toDTO(updatedStudent);
     }
 }
 

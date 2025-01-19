@@ -53,6 +53,17 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
+    @ExceptionHandler(UnprocesableEntityException.class)
+    @ApiResponse(responseCode = "422", description = "Unprocessable Entity: User request using wrong endpoint")
+    public ResponseEntity<Map<String, Object>> handleUnprocesableEntityException(UnprocesableEntityException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        response.put("error", "Unprocessable Entity");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
+    }
+
     @ExceptionHandler(RequestParamWrong.class)
     @ApiResponse(responseCode = "400", description = "Bad Request: Invalid request parameters")
     public ResponseEntity<Object> handleRequestParamWrong(RequestParamWrong ex) {
