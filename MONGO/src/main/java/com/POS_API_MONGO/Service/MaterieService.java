@@ -1,9 +1,6 @@
 package com.POS_API_MONGO.Service;
 
-import com.POS_API_MONGO.Advice.Exception.InvalidPonderiException;
-import com.POS_API_MONGO.Advice.Exception.ResourceNotFoundException;
-import com.POS_API_MONGO.Advice.Exception.UniqueKeyException;
-import com.POS_API_MONGO.Advice.Exception.WrongLocationException;
+import com.POS_API_MONGO.Advice.Exception.*;
 import com.POS_API_MONGO.DTO.CreateMaterieRequestDTO;
 import com.POS_API_MONGO.DTO.GradingDTO;
 import com.POS_API_MONGO.DTO.MaterieFilesResponseDTO;
@@ -71,6 +68,11 @@ public class MaterieService {
             }
 
             File savedFile = new File(locatieDir, file.getOriginalFilename());
+
+            if (savedFile.exists()) {
+                throw new FileNameExistsException(file.getOriginalFilename(), locatie);
+            }
+
             try (FileOutputStream fos = new FileOutputStream(savedFile)) {
                 fos.write(file.getBytes());
             }
@@ -96,6 +98,7 @@ public class MaterieService {
             throw new RuntimeException("Eroare la salvarea fișierului: " + e.getMessage(), e);
         }
     }
+
 
     public Resource getFileResource(String codMaterie, String locatie, String numeFisier) {
         verifyDisciplineExists(codMaterie);

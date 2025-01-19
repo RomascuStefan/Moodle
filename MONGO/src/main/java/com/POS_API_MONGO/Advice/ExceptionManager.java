@@ -76,6 +76,17 @@ public class ExceptionManager {
         return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
 
+    @ExceptionHandler(FileNameExistsException.class)
+    public ResponseEntity<Object> handleFileNameExistsException(FileNameExistsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("error", "Conflict");
+        response.put("message", String.format("Fisierul '%s' exista deja în locatia '%s'.", ex.getFilename(), ex.getLocation()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+
 
     // Handle generic RuntimeException (fallback)
     @ExceptionHandler(RuntimeException.class)
