@@ -1,6 +1,8 @@
 package com.POS_API.Advice;
 
 import com.POS_API.Advice.Exception.*;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,8 +16,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class ExceptionManager {
 
-    // Handle ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
+    @ApiResponse(responseCode = "404", description = "Resource Not Found")
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -27,8 +29,8 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Handle UniqueKeyException
     @ExceptionHandler(UniqueKeyException.class)
+    @ApiResponse(responseCode = "409", description = "Conflict: Duplicate entry detected")
     public ResponseEntity<Object> handleUniqueKeyException(UniqueKeyException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -41,6 +43,7 @@ public class ExceptionManager {
     }
 
     @ExceptionHandler(PaginatedViewOutOfBoundsException.class)
+    @ApiResponse(responseCode = "422", description = "Unprocessable Entity: Pagination parameters are out of bounds")
     public ResponseEntity<Map<String, Object>> handlePaginatedViewOutOfBoundsException(PaginatedViewOutOfBoundsException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -50,9 +53,8 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
-
-    // Handle RequestParamWrong
     @ExceptionHandler(RequestParamWrong.class)
+    @ApiResponse(responseCode = "400", description = "Bad Request: Invalid request parameters")
     public ResponseEntity<Object> handleRequestParamWrong(RequestParamWrong ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -64,8 +66,8 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handle EnumException
     @ExceptionHandler(EnumException.class)
+    @ApiResponse(responseCode = "400", description = "Bad Request: Invalid Enum Value")
     public ResponseEntity<Object> handleEnumException(EnumException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -77,8 +79,8 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handle generic RuntimeException (fallback)
     @ExceptionHandler(RuntimeException.class)
+    @ApiResponse(responseCode = "500", description = "Internal Server Error: Unexpected runtime exception")
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -91,18 +93,19 @@ public class ExceptionManager {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ApiResponse(responseCode = "400", description = "Bad Request: Invalid type for request parameter")
     public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Bad Request");
-        response.put("message",  String.format("Invalid value provided for the parameter '%s'", ex.getName()));
+        response.put("message", String.format("Invalid value provided for the parameter '%s'", ex.getName()));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handle IllegalStateException
     @ExceptionHandler(IllegalStateException.class)
+    @ApiResponse(responseCode = "409", description = "Conflict: Illegal state for the requested operation")
     public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -114,8 +117,11 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-
     @ExceptionHandler(MongoServiceException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "409", description = "Mongo Service Error: Conflict"),
+            @ApiResponse(responseCode = "500", description = "Mongo Service Error: Internal Service Error")
+    })
     public ResponseEntity<Map<String, Object>> handleMongoServiceException(MongoServiceException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("error", "Mongo Service Error");
@@ -124,10 +130,14 @@ public class ExceptionManager {
         errorResponse.put("timestamp", LocalDateTime.now());
 
         return ResponseEntity.status(ex.getStatus()).body(errorResponse);
-
     }
 
     @ExceptionHandler(IdmServiceException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "IDM Service Error: Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "IDM Service Error: Forbidden"),
+            @ApiResponse(responseCode = "500", description = "IDM Service Error: Internal Service Error")
+    })
     public ResponseEntity<Map<String, Object>> handleIdmServiceException(IdmServiceException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("details", ex.getResponseBody());

@@ -1,6 +1,8 @@
 package com.POS_API_MONGO.Advice;
 
 import com.POS_API_MONGO.Advice.Exception.*;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,8 +15,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class ExceptionManager {
 
-    // Handle ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Resource Not Found")
+    })
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -24,8 +28,10 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Handle UniqueKeyException
     @ExceptionHandler(UniqueKeyException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "409", description = "Conflict: Duplicate Entry Detected")
+    })
     public ResponseEntity<Object> handleUniqueKeyException(UniqueKeyException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -35,8 +41,10 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    // Handle WrongLocationException
     @ExceptionHandler(WrongLocationException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid File Location")
+    })
     public ResponseEntity<Object> handleWrongLocationException(WrongLocationException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -47,16 +55,24 @@ public class ExceptionManager {
     }
 
     @ExceptionHandler(InvalidPonderiException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "422", description = "Unprocessable Entity: Invalid Grading Weights")
+    })
     public ResponseEntity<Object> handleInvalidPonderiException(InvalidPonderiException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
         response.put("error", "Bad Request");
         response.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
 
     @ExceptionHandler(IdmServiceException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "Unauthorized: IDM Service Error"),
+            @ApiResponse(responseCode = "403", description = "Forbidden: IDM Service Error"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error: IDM Service Error")
+    })
     public ResponseEntity<Map<String, Object>> handleIdmServiceException(IdmServiceException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("details", ex.getResponseBody());
@@ -67,6 +83,10 @@ public class ExceptionManager {
     }
 
     @ExceptionHandler(SqlServiceException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "409", description = "Conflict: SQL Service Error"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error: SQL Service Error")
+    })
     public ResponseEntity<Map<String, Object>> handleIdmServiceException(SqlServiceException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("details", ex.getResponseBody());
@@ -77,6 +97,9 @@ public class ExceptionManager {
     }
 
     @ExceptionHandler(FileNameExistsException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "409", description = "Conflict: File Already Exists")
+    })
     public ResponseEntity<Object> handleFileNameExistsException(FileNameExistsException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -86,10 +109,10 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-
-
-    // Handle generic RuntimeException (fallback)
     @ExceptionHandler(RuntimeException.class)
+    @ApiResponses({
+            @ApiResponse(responseCode = "500", description = "Internal Server Error: An unexpected error occurred")
+    })
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
@@ -99,6 +122,4 @@ public class ExceptionManager {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
-
 }
