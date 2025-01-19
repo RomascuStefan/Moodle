@@ -17,7 +17,8 @@ export const getLectures = async (page = 0) => {
 export const getDisciplinesByRole = async (link) => {
   const headers = createHeaders();
 
-  const response = await fetch(link, { headers });
+  const cleanLink = link.split('{')[0]
+  const response = await fetch(cleanLink, { headers });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch disciplines by role: ${response.statusText}`);
