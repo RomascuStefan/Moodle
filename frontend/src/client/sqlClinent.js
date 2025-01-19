@@ -39,3 +39,20 @@ export const getLectureByCod = async (cod) => {
 
   return response.json();
 };
+
+export const createDisciplina = async (disciplinaData) => {
+    const response = await fetch(`${BASE_URL}/lectures`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+      },
+      body: JSON.stringify(disciplinaData),
+    });
+  
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create disciplina');
+    }
+    return response.json();
+  };

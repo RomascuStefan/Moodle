@@ -6,7 +6,6 @@ const IndexPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extract the current page from query parameters or default to 0
   const queryParams = new URLSearchParams(location.search);
   const initialPage = parseInt(queryParams.get('page')) || 0;
 
@@ -38,12 +37,10 @@ const IndexPage = () => {
   };
 
   useEffect(() => {
-    // Fetch lectures based on the current page
     fetchLecturesByPage(currentPage);
   }, [currentPage]);
 
   useEffect(() => {
-    // Update URL whenever the current page changes
     updateURL(currentPage);
   }, [currentPage]);
 
@@ -74,9 +71,18 @@ const IndexPage = () => {
     }
   };
 
+  const handleCreateDisciplina = () => {
+    navigate('/create-disciplina');
+  };
+
   return (
     <div>
       <h1>Lista Discipline</h1>
+      {links['add-disciplina'] && (
+        <button onClick={handleCreateDisciplina} style={{ marginBottom: '20px' }}>
+          Create Disciplina
+        </button>
+      )}
       {loading && <p>Se încarcă...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>

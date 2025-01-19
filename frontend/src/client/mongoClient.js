@@ -16,6 +16,27 @@ export const getFilesByCod = async (cod) => {
   return response.json();
 };
 
+export const uploadFile = async (codMaterie, locatie, file) => {
+    const headers = createHeaders();
+    const formData = new FormData();
+    formData.append('locatie', locatie);
+    formData.append('file', file);
+  
+    const response = await fetch(`${BASE_URL}/${codMaterie}`, {
+      method: 'POST',
+      headers: {
+        Authorization: headers.Authorization, // Include the Authorization header
+      },
+      body: formData,
+    });
+  
+    if (!response.ok) {
+      throw new Error(`Failed to upload file: ${response.statusText}`);
+    }
+  
+    return response.json();
+  };
+
 export const downloadFile = async (cod, locatie, numeFisier) => {
   const url = `${BASE_URL}/${cod}?action=download&locatie=${encodeURIComponent(locatie)}&numeFisier=${encodeURIComponent(numeFisier)}`;
 
