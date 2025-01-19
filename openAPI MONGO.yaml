@@ -1,10 +1,10 @@
 openapi: 3.0.1
 info:
-  title: OpenAPI MONGO Service
+  title: OpenAPI MONGO
   version: v0
 servers:
 - url: http://localhost:8081
-  description: Mongo service POS
+  description: Generat cu swagger
 paths:
   /api/academia_mongo:
     post:
@@ -24,8 +24,8 @@ paths:
               $ref: "#/components/schemas/CreateMaterieRequestDTO"
         required: true
       responses:
-        "422":
-          description: "Unprocessable Entity: Invalid Grading Weights"
+        "404":
+          description: Resource Not Found
           content:
             '*/*':
               schema:
@@ -36,20 +36,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: "Bad Request: Invalid File Location"
-          content:
-            '*/*':
-              schema:
-                type: object
         "500":
-          description: "Internal Server Error: IDM Service Error"
+          description: "Internal Server Error: An unexpected error occurred"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: "Forbidden: IDM Service Error"
           content:
@@ -66,8 +64,8 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
-        "404":
-          description: Resource Not Found
+        "400":
+          description: "Bad Request: Invalid File Location"
           content:
             '*/*':
               schema:
@@ -110,8 +108,8 @@ paths:
         schema:
           type: string
       responses:
-        "422":
-          description: "Unprocessable Entity: Invalid Grading Weights"
+        "404":
+          description: Resource Not Found
           content:
             '*/*':
               schema:
@@ -122,20 +120,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: "Bad Request: Invalid File Location"
-          content:
-            '*/*':
-              schema:
-                type: object
         "500":
-          description: "Internal Server Error: IDM Service Error"
+          description: "Internal Server Error: An unexpected error occurred"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: "Forbidden: IDM Service Error"
           content:
@@ -152,8 +148,8 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
-        "404":
-          description: Resource Not Found
+        "400":
+          description: "Bad Request: Invalid File Location"
           content:
             '*/*':
               schema:
@@ -195,8 +191,8 @@ paths:
                   format: binary
         required: true
       responses:
-        "422":
-          description: "Unprocessable Entity: Invalid Grading Weights"
+        "404":
+          description: Resource Not Found
           content:
             '*/*':
               schema:
@@ -207,20 +203,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: "Bad Request: Invalid File Location"
-          content:
-            '*/*':
-              schema:
-                type: object
         "500":
-          description: "Internal Server Error: IDM Service Error"
+          description: "Internal Server Error: An unexpected error occurred"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: "Forbidden: IDM Service Error"
           content:
@@ -237,8 +231,8 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
-        "404":
-          description: Resource Not Found
+        "400":
+          description: "Bad Request: Invalid File Location"
           content:
             '*/*':
               schema:
@@ -275,8 +269,8 @@ paths:
         schema:
           type: string
       responses:
-        "422":
-          description: "Unprocessable Entity: Invalid Grading Weights"
+        "404":
+          description: Resource Not Found
           content:
             '*/*':
               schema:
@@ -287,20 +281,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: "Bad Request: Invalid File Location"
-          content:
-            '*/*':
-              schema:
-                type: object
         "500":
-          description: "Internal Server Error: IDM Service Error"
+          description: "Internal Server Error: An unexpected error occurred"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: "Forbidden: IDM Service Error"
           content:
@@ -317,8 +309,8 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
-        "404":
-          description: Resource Not Found
+        "400":
+          description: "Bad Request: Invalid File Location"
           content:
             '*/*':
               schema:
@@ -351,8 +343,8 @@ paths:
               $ref: "#/components/schemas/GradingDTO"
         required: true
       responses:
-        "422":
-          description: "Unprocessable Entity: Invalid Grading Weights"
+        "404":
+          description: Resource Not Found
           content:
             '*/*':
               schema:
@@ -363,20 +355,18 @@ paths:
             '*/*':
               schema:
                 type: object
-        "400":
-          description: "Bad Request: Invalid File Location"
-          content:
-            '*/*':
-              schema:
-                type: object
         "500":
-          description: "Internal Server Error: IDM Service Error"
+          description: "Internal Server Error: An unexpected error occurred"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "422":
+          description: "Unprocessable Entity: Invalid Grading Weights"
+          content:
+            '*/*':
+              schema:
+                type: object
         "403":
           description: "Forbidden: IDM Service Error"
           content:
@@ -393,8 +383,8 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
-        "404":
-          description: Resource Not Found
+        "400":
+          description: "Bad Request: Invalid File Location"
           content:
             '*/*':
               schema:

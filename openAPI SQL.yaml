@@ -1,10 +1,10 @@
 openapi: 3.0.1
 info:
-  title: OpenAPI SQL Service
+  title: OpenAPI SQL
   version: v0
 servers:
 - url: http://localhost:8080
-  description: SQL Service POS
+  description: Generat cu swagger
 paths:
   /api/academia/validate/modify_resource:
     post:
@@ -24,22 +24,32 @@ paths:
               $ref: "#/components/schemas/MongoRequestDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -56,20 +66,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -100,22 +96,32 @@ paths:
               $ref: "#/components/schemas/MongoRequestDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -132,20 +138,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -182,22 +174,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -214,20 +216,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -263,22 +251,32 @@ paths:
               $ref: "#/components/schemas/StudentDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -301,14 +299,79 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelStudentDTO"
+    patch:
+      tags:
+      - student-controller
+      operationId: updateStudent
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentPatchDTO"
+        required: true
+      responses:
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
         "404":
           description: Resource Not Found
           content:
             '*/*':
               schema:
                 type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+        "409":
+          description: "Conflict: Duplicate entry detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
           content:
             '*/*':
               schema:
@@ -318,9 +381,6 @@ paths:
         "200":
           description: OK
           content:
-            application/JSON:
-              schema:
-                $ref: "#/components/schemas/EntityModelStudentDTO"
             application/json:
               schema:
                 $ref: "#/components/schemas/EntityModelStudentDTO"
@@ -363,22 +423,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -395,20 +465,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -444,22 +500,32 @@ paths:
               $ref: "#/components/schemas/ProfesorDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -482,14 +548,79 @@ paths:
                 type: object
                 additionalProperties:
                   type: object
+        "200":
+          description: OK
+          content:
+            application/JSON:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityModelProfesorDTO"
+    patch:
+      tags:
+      - profesor-controller
+      operationId: updateProfesor
+      parameters:
+      - name: userId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfesorPatchDTO"
+        required: true
+      responses:
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
         "404":
           description: Resource Not Found
           content:
             '*/*':
               schema:
                 type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
+        "409":
+          description: "Conflict: Duplicate entry detected"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "400":
+          description: "Bad Request: Invalid request parameters"
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: "IDM Service Error: Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "403":
+          description: "IDM Service Error: Forbidden"
           content:
             '*/*':
               schema:
@@ -499,9 +630,6 @@ paths:
         "200":
           description: OK
           content:
-            application/JSON:
-              schema:
-                $ref: "#/components/schemas/EntityModelProfesorDTO"
             application/json:
               schema:
                 $ref: "#/components/schemas/EntityModelProfesorDTO"
@@ -539,22 +667,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -571,20 +709,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -620,22 +744,32 @@ paths:
               $ref: "#/components/schemas/DisciplinaDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -652,20 +786,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -707,22 +827,32 @@ paths:
               $ref: "#/components/schemas/EnrollStudentsDTO"
         required: true
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -739,20 +869,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -786,22 +902,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -818,20 +944,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -864,22 +976,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -896,20 +1018,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -943,22 +1051,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -975,20 +1093,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -1021,22 +1125,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -1053,20 +1167,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -1099,22 +1199,32 @@ paths:
         schema:
           type: string
       responses:
-        "500":
-          description: "Mongo Service Error: Internal Service Error"
+        "422":
+          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
                 type: object
                 additionalProperties:
                   type: object
+        "404":
+          description: Resource Not Found
+          content:
+            '*/*':
+              schema:
+                type: object
         "409":
-          description: "Mongo Service Error: Conflict"
+          description: "Conflict: Duplicate entry detected"
           content:
             '*/*':
               schema:
                 type: object
-                additionalProperties:
-                  type: object
+        "500":
+          description: "Internal Server Error: Unexpected runtime exception"
+          content:
+            '*/*':
+              schema:
+                type: object
         "400":
           description: "Bad Request: Invalid request parameters"
           content:
@@ -1131,20 +1241,6 @@ paths:
                   type: object
         "403":
           description: "IDM Service Error: Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: object
-        "404":
-          description: Resource Not Found
-          content:
-            '*/*':
-              schema:
-                type: object
-        "422":
-          description: "Unprocessable Entity: Pagination parameters are out of bounds"
           content:
             '*/*':
               schema:
@@ -1378,6 +1474,32 @@ components:
           type: string
         _links:
           $ref: "#/components/schemas/Links"
+    StudentPatchDTO:
+      type: object
+      properties:
+        nume:
+          type: string
+        prenume:
+          type: string
+        cicluStudii:
+          type: string
+        anStudiu:
+          type: string
+        grupa:
+          type: string
+    ProfesorPatchDTO:
+      type: object
+      properties:
+        nume:
+          type: string
+        prenume:
+          type: string
+        gradDidactic:
+          type: string
+        tipAsociere:
+          type: string
+        afiliere:
+          type: string
     CollectionModelEntityModelStudentDTO:
       type: object
       properties:
