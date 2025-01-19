@@ -1,6 +1,8 @@
 package com.POS_API.Controller;
 
 import auth.AuthServiceOuterClass;
+import com.POS_API.Advice.Exception.PaginatedViewOutOfBoundsException;
+import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.*;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
@@ -51,7 +53,6 @@ public class DisciplinaController {
             @RequestParam(required = false, defaultValue = "10") String items_per_page,
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
-
         AuthServiceOuterClass.Role role = authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         List<DisciplinaDTO> discipline = disciplinaService.findAllDiscipline();
@@ -68,8 +69,21 @@ public class DisciplinaController {
         int integerItemPerPage = HelperFunctions.stringToInt(items_per_page, "items_per_page");
         int integerPage = HelperFunctions.stringToInt(page, "page");
 
-        int fromIndex = Math.min(integerPage * integerItemPerPage, totalItems);
+        if (integerItemPerPage < 0)
+            throw new RequestParamWrong("items per page", items_per_page, "cant be negative");
+        else if(integerItemPerPage == 0)
+            throw new PaginatedViewOutOfBoundsException("Cant display 0 items per page");
+
+        if (integerPage < 0)
+            throw new RequestParamWrong("page number", page, "cant be negative");
+
+
+        int fromIndex = integerPage * integerItemPerPage;
         int toIndex = Math.min(fromIndex + integerItemPerPage, totalItems);
+
+        if (fromIndex >= totalItems) {
+            throw new PaginatedViewOutOfBoundsException("Can't provide this many discipline");
+        }
 
         List<DisciplinaDTO> paginatedDiscipline = discipline.subList(fromIndex, toIndex);
 
@@ -81,14 +95,7 @@ public class DisciplinaController {
                             .findDisciplinaByCod(disciplina.getCod(), null))
                             .withSelfRel().withType("GET"));
 
-
-                    if (role == ADMIN) {
-                        links.add(linkTo(methodOn(DisciplinaController.class)
-                                .enrollStudents(disciplina.getCod(), null, null))
-                                .withRel("enroll-students").withType("POST"));
-                    }
-
-                    if (role == PROFESOR) {
+                    if (role == ADMIN || role == PROFESOR) {
                         links.add(linkTo(methodOn(DisciplinaController.class)
                                 .enrollStudents(disciplina.getCod(), null, null))
                                 .withRel("enroll-students").withType("POST"));
@@ -144,6 +151,7 @@ public class DisciplinaController {
 
         return ResponseEntity.ok(collectionModel);
     }
+
 
     @GetMapping(value = "/{cod}", produces = "application/JSON")
     public ResponseEntity<EntityModel<DisciplinaDTO>> findDisciplinaByCod(@PathVariable String cod, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {

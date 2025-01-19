@@ -1,16 +1,15 @@
 package com.POS_API.Service;
 
-import com.POS_API.Advice.Exception.IdmServiceException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
-import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.Advice.Exception.UniqueKeyException;
+import com.POS_API.Advice.Exception.UnprocesableEntityException;
+import com.POS_API.DTO.ProfesorDTO;
 import com.POS_API.Mapper.ProfesorMapper;
 import com.POS_API.Model.Enums.GradDidactic;
 import com.POS_API.Model.Profesor;
 import com.POS_API.Repository.ProfesorDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +45,7 @@ public class ProfesorService {
         Optional<Profesor> profesor = profesorRepo.findProfesorByEmail(email);
 
         if (profesor.isEmpty())
-            throw new IdmServiceException(HttpStatus.FORBIDDEN,"Not a profesor");
+            throw new UnprocesableEntityException("Not a profesor");
 
         return ProfesorMapper.toDTO(profesor.get());
     }

@@ -3,6 +3,7 @@ package com.POS_API.Service;
 import com.POS_API.Advice.Exception.IdmServiceException;
 import com.POS_API.Advice.Exception.ResourceNotFoundException;
 import com.POS_API.Advice.Exception.UniqueKeyException;
+import com.POS_API.Advice.Exception.UnprocesableEntityException;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
 import com.POS_API.Mapper.DisciplinaMapper;
@@ -83,7 +84,8 @@ public class StudentService {
     public int findStudentIdByEmail(String email) {
         Optional<Student> student= studentRepo.findStudentByEmail(email);
         if(student.isEmpty())
-            throw new IdmServiceException(HttpStatus.FORBIDDEN,"Not a student");
+            throw new UnprocesableEntityException("Not a student");
+
 
         return studentRepo.findStudentByEmail(email).get().getId();
     }

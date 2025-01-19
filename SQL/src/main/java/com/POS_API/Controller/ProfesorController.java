@@ -1,5 +1,6 @@
 package com.POS_API.Controller;
 
+import com.POS_API.Advice.Exception.PaginatedViewOutOfBoundsException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.ProfesorDTO;
@@ -71,8 +72,20 @@ public class ProfesorController {
         int integerItemPerPage = HelperFunctions.stringToInt(items_per_page, "items_per_page");
         int integerPage = HelperFunctions.stringToInt(page, "page");
 
+        if (integerItemPerPage < 0)
+            throw new RequestParamWrong("items per page", items_per_page, "cant be negative");
+        else if(integerItemPerPage == 0)
+            throw new PaginatedViewOutOfBoundsException("Cant display 0 items per page");
+
+        if (integerPage < 0)
+            throw new RequestParamWrong("page number", page, "cant be negative");
+
         int fromIndex = Math.min(integerPage * integerItemPerPage, totalItems);
         int toIndex = Math.min(fromIndex + integerItemPerPage, totalItems);
+
+        if (fromIndex >= totalItems) {
+            throw new PaginatedViewOutOfBoundsException("Can't provide this many discipline");
+        }
 
         List<ProfesorDTO> paginatedProfesori = profesori.subList(fromIndex, toIndex);
 

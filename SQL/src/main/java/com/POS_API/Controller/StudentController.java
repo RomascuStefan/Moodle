@@ -1,6 +1,7 @@
 package com.POS_API.Controller;
 
 import auth.AuthServiceOuterClass;
+import com.POS_API.Advice.Exception.PaginatedViewOutOfBoundsException;
 import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
@@ -40,27 +41,79 @@ public class StudentController {
     }
 
     @GetMapping(produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<CollectionModel<EntityModel<StudentDTO>>> findAllStudents(
+            @RequestParam(required = false, defaultValue = "0") String page,
+            @RequestParam(required = false, defaultValue = "10") String items_per_page,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
         AuthServiceOuterClass.Role role = authService.verifyRequest(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-        List<EntityModel<StudentDTO>> students = studentService.findAllStudenti().stream()
+        List<StudentDTO> studentsList = studentService.findAllStudenti();
+
+        int totalItems = studentsList.size();
+        int integerItemPerPage = HelperFunctions.stringToInt(items_per_page, "items_per_page");
+        int integerPage = HelperFunctions.stringToInt(page, "page");
+
+        if (integerItemPerPage < 0)
+            throw new RequestParamWrong("items per page", items_per_page, "cant be negative");
+        else if (integerItemPerPage == 0)
+            throw new PaginatedViewOutOfBoundsException("Cant display 0 items per page");
+
+        if (integerPage < 0)
+            throw new RequestParamWrong("page number", page, "cant be negative");
+
+        int fromIndex = integerPage * integerItemPerPage;
+        int toIndex = Math.min(fromIndex + integerItemPerPage, totalItems);
+
+        if (fromIndex >= totalItems) {
+            throw new PaginatedViewOutOfBoundsException("Can't provide this many students");
+        }
+
+        List<StudentDTO> paginatedStudents = studentsList.subList(fromIndex, toIndex);
+
+        List<EntityModel<StudentDTO>> students = paginatedStudents.stream()
                 .map(student -> EntityModel.of(student,
                         linkTo(methodOn(StudentController.class)
                                 .findStudentById(student.getId(), null))
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(StudentController.class)
-                                .getDisciplineForStudent(null,null))
+                                .getDisciplineForStudent(null, null))
                                 .withRel("lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
 
         Link selfLink = linkTo(methodOn(StudentController.class)
-                .findAllStudents(null))
+                .findAllStudents(null, null, authorizationHeader))
                 .withSelfRel()
                 .withType("GET");
 
         CollectionModel<EntityModel<StudentDTO>> collectionModel = CollectionModel.of(students, selfLink);
+
+        collectionModel.add(
+                linkTo(methodOn(StudentController.class)
+                        .findAllStudents(Integer.toString(integerPage), Integer.toString(integerItemPerPage), authorizationHeader))
+                        .withRel("current_page")
+                        .withType("GET")
+        );
+
+        if (integerPage > 0) {
+            collectionModel.add(
+                    linkTo(methodOn(StudentController.class)
+                            .findAllStudents(Integer.toString(integerPage - 1), Integer.toString(integerItemPerPage), authorizationHeader))
+                            .withRel("previous_page")
+                            .withType("GET")
+            );
+        }
+
+        if (toIndex < totalItems) {
+            collectionModel.add(
+                    linkTo(methodOn(StudentController.class)
+                            .findAllStudents(Integer.toString(integerPage + 1), Integer.toString(integerItemPerPage), authorizationHeader))
+                            .withRel("next_page")
+                            .withType("GET")
+            );
+        }
 
         if (role == ADMIN) {
             collectionModel.add(linkTo(methodOn(StudentController.class)
@@ -71,6 +124,7 @@ public class StudentController {
 
         return ResponseEntity.ok(collectionModel);
     }
+
 
 
     @GetMapping(value = "/{id}", produces = "application/JSON")
@@ -87,7 +141,7 @@ public class StudentController {
                         .withSelfRel()
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
-                        .findAllStudents(null))
+                        .findAllStudents(null,null,null))
                         .withRel("all-students")
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
@@ -165,7 +219,7 @@ public class StudentController {
                         .withSelfRel()
                         .withType("POST"),
                 linkTo(methodOn(StudentController.class)
-                        .findAllStudents(null))
+                        .findAllStudents(null,null,null))
                         .withRel("all-students")
                         .withType("GET"));
         return ResponseEntity.status(HttpStatus.CREATED).body(studentModel);

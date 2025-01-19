@@ -40,6 +40,17 @@ public class ExceptionManager {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(PaginatedViewOutOfBoundsException.class)
+    public ResponseEntity<Map<String, Object>> handlePaginatedViewOutOfBoundsException(PaginatedViewOutOfBoundsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        response.put("error", "Unprocessable Entity");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
+    }
+
+
     // Handle RequestParamWrong
     @ExceptionHandler(RequestParamWrong.class)
     public ResponseEntity<Object> handleRequestParamWrong(RequestParamWrong ex) {
