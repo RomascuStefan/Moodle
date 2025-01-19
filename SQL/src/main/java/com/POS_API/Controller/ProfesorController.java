@@ -27,7 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/profesori")
-@CrossOrigin(origins = "${frontend.origin}")
+@CrossOrigin(origins = "${frontend.origin}", exposedHeaders = "Authorization")
 public class ProfesorController {
 
     private final ProfesorService profesorService;
@@ -147,16 +147,16 @@ public class ProfesorController {
     }
 
     @GetMapping(value = "/lectures", produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@RequestParam(required = false) String profId, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@RequestParam(required = false) String userId, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
         UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
         int id;
         if (userDetailDTO.getRole() == ADMIN) {
-            if (profId == null || profId.trim().isEmpty())
+            if (userId == null || userId.trim().isEmpty())
                 throw new RequestParamWrong("", "profId", "no professor selected");
             else
-                id = HelperFunctions.stringToInt(profId, "profesor id");
+                id = HelperFunctions.stringToInt(userId, "profesor id");
         } else
             id = profesorService.findProfesorByEmail(userDetailDTO.getEmail()).getId();
 

@@ -27,7 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/academia/student")
-@CrossOrigin(origins = "${frontend.origin}")
+@CrossOrigin(origins = "${frontend.origin}", exposedHeaders = "Authorization")
 public class StudentController {
 
     private final StudentService studentService;
@@ -100,17 +100,17 @@ public class StudentController {
 
     @GetMapping(value = "/lectures", produces = "application/JSON")
     public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent
-            (@RequestParam(required = false) String studentId,
+            (@RequestParam(required = false) String userId,
              @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
         int id;
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
         if (userDetail.getRole() == ADMIN) {
-            if (studentId == null || studentId.trim().isEmpty())
+            if (userId == null || userId.trim().isEmpty())
                 throw new RequestParamWrong("", "studentId", "no student selected");
             else
-                id = HelperFunctions.stringToInt(studentId, "student id");
+                id = HelperFunctions.stringToInt(userId, "student id");
         }
         else
             id = studentService.findStudentIdByEmail(userDetail.getEmail());
