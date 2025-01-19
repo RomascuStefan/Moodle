@@ -1,21 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { getLectures } from './../client/sqlClinent';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getLectures, getDisciplinesByRole } from './../client/sqlClinent';
 
 const IndexPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Extract the current page from query parameters or default to 0
+  const queryParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(queryParams.get('page')) || 0;
+
   const [lectures, setLectures] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(15);
   const [links, setLinks] = useState({});
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchLectures = async (page) => {
+  const updateURL = (page) => {
+    const params = new URLSearchParams();
+    params.set('page', page);
+    navigate({ search: params.toString() });
+  };
+
+  const fetchLecturesByPage = async (page) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getLectures(page, itemsPerPage);
-      setLectures(data._embedded ? data._embedded['disciplinaDTOList'] : []);
+      const data = await getLectures(page);
+      setLectures(data._embedded?.disciplinaDTOList || []);
       setLinks(data._links || {});
     } catch (err) {
       setError(err.message);
@@ -25,38 +38,70 @@ const IndexPage = () => {
   };
 
   useEffect(() => {
-    fetchLectures(currentPage);
+    // Fetch lectures based on the current page
+    fetchLecturesByPage(currentPage);
   }, [currentPage]);
 
-  const handleNextPage = () => {
-    if (links.next) {
-      setCurrentPage((prev) => prev + 1);
+  useEffect(() => {
+    // Update URL whenever the current page changes
+    updateURL(currentPage);
+  }, [currentPage]);
+
+  const handleViewYourDisciplines = async () => {
+    const link = links['view-your-discipline']?.href;
+
+    if (!link) {
+      return;
+    }
+
+    try {
+      const data = await getDisciplinesByRole(link);
+      navigate('/your-disciplines', { state: { disciplines: data._embedded?.disciplinaDTOList || [] } });
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const handlePrevPage = () => {
-    if (links.previous) {
-      setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handleNextPage = () => {
+    if (links['next_page']) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (links['previous_page']) {
+      setCurrentPage((prevPage) => Math.max(prevPage - 1, 0));
     }
   };
 
   return (
     <div>
-      <h1>Lista Disciplinelor</h1>
+      <h1>Lista Discipline</h1>
       {loading && <p>Se încarcă...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>
-        {lectures.map((lecture, index) => (
-          <li key={index}>
+        {lectures.map((lecture) => (
+          <li key={lecture.cod}>
             <strong>
-              <a href={`/disciplina/${lecture.cod}`}>{lecture.numeDisciplina}</a>
-            </strong> - {lecture.tipDisciplina}
+              {lecture.numeDisciplina}: {lecture.numeTitular}
+            </strong>
           </li>
         ))}
       </ul>
       <div>
-        {links.previous && <button onClick={handlePrevPage}>Pagina Anterioară</button>}
-        {links.next && <button onClick={handleNextPage}>Pagina Următoare</button>}
+        {links['previous_page'] && (
+          <button onClick={handlePreviousPage}>PREVIOUS</button>
+        )}
+        {links['next_page'] && (
+          <button onClick={handleNextPage}>NEXT</button>
+        )}
+      </div>
+      <div>
+        {links['view-your-discipline'] && (
+          <button onClick={handleViewYourDisciplines}>
+            View Your Disciplines
+          </button>
+        )}
       </div>
     </div>
   );
