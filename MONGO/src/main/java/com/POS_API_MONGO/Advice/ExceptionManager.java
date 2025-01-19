@@ -62,7 +62,7 @@ public class ExceptionManager {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
-        response.put("error", "Bad Request");
+        response.put("error", "Unprocessable Entity");
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
     }
