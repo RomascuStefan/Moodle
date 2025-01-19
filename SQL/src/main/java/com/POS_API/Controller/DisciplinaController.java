@@ -115,12 +115,12 @@ public class DisciplinaController {
         );
         if (role == STUDENT) {
             collectionModel.add(linkTo(methodOn(StudentController.class)
-                    .getDisciplineForStudent(null))
+                    .getDisciplineForStudent(null,null))
                     .withRel("view-your-discipline").withType("GET"));
         }
         if (role == PROFESOR) {
             collectionModel.add(linkTo(methodOn(ProfesorController.class)
-                    .findDisciplinaByProfesorId(null))
+                    .findDisciplinaByProfesorId(null,null))
                     .withRel("view-your-discipline").withType("GET"));
         }
         if (fromIndex > 0) {

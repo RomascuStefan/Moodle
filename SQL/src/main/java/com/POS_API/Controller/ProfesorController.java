@@ -1,7 +1,9 @@
 package com.POS_API.Controller;
 
+import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.ProfesorDTO;
+import com.POS_API.DTO.UserDetailDTO;
 import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.DisciplinaService;
@@ -81,7 +83,7 @@ public class ProfesorController {
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(ProfesorController.class)
-                                .findDisciplinaByProfesorId(null))
+                                .findDisciplinaByProfesorId(null,null))
                                 .withRel("lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
@@ -134,7 +136,7 @@ public class ProfesorController {
                 .withSelfRel()
                 .withType("GET");
         Link findDisciplinaLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ProfesorController.class)
-                        .findDisciplinaByProfesorId(null))
+                        .findDisciplinaByProfesorId(null,null))
                 .withRel("findDisciplinaByProfesorId")
                 .withType("GET");
 
@@ -145,13 +147,20 @@ public class ProfesorController {
     }
 
     @GetMapping(value = "/lectures", produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> findDisciplinaByProfesorId(@RequestParam(required = false) String profId, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
-        String email = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT)).getEmail();
+        UserDetailDTO userDetailDTO = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
 
-        int profId = profesorService.findProfesorByEmail(email).getId();
+        int id;
+        if (userDetailDTO.getRole() == ADMIN) {
+            if (profId == null || profId.trim().isEmpty())
+                throw new RequestParamWrong("", "profId", "no professor selected");
+            else
+                id = HelperFunctions.stringToInt(profId, "profesor id");
+        } else
+            id = profesorService.findProfesorByEmail(userDetailDTO.getEmail()).getId();
 
-        List<DisciplinaDTO> discipline = disciplinaService.findDisciplinaByProfesorId(profId);
+        List<DisciplinaDTO> discipline = disciplinaService.findDisciplinaByProfesorId(id);
 
         List<EntityModel<DisciplinaDTO>> disciplinaModels = discipline.stream()
                 .map(disciplinaDTO -> EntityModel.of(disciplinaDTO,
@@ -159,12 +168,12 @@ public class ProfesorController {
                                 .findDisciplinaByCod(disciplinaDTO.getCod(), null))
                                 .withSelfRel()
                                 .withType("GET")))
-                
+
                 .collect(Collectors.toList());
 
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(disciplinaModels,
                 linkTo(methodOn(ProfesorController.class)
-                        .findProfesorById(profId, null))
+                        .findProfesorById(id, null))
                         .withRel("profesor")
                         .withType("GET"),
                 linkTo(methodOn(ProfesorController.class)

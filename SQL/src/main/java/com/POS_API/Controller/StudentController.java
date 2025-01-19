@@ -1,9 +1,11 @@
 package com.POS_API.Controller;
 
 import auth.AuthServiceOuterClass;
+import com.POS_API.Advice.Exception.RequestParamWrong;
 import com.POS_API.DTO.DisciplinaDTO;
 import com.POS_API.DTO.StudentDTO;
 import com.POS_API.DTO.UserDetailDTO;
+import com.POS_API.Helper.HelperFunctions;
 import com.POS_API.Service.AuthService;
 import com.POS_API.Service.StudentService;
 import jakarta.validation.Valid;
@@ -48,7 +50,7 @@ public class StudentController {
                                 .withSelfRel()
                                 .withType("GET"),
                         linkTo(methodOn(StudentController.class)
-                                .getDisciplineForStudent(null))
+                                .getDisciplineForStudent(null,null))
                                 .withRel("lectures")
                                 .withType("GET")))
                 .collect(Collectors.toList());
@@ -89,7 +91,7 @@ public class StudentController {
                         .withRel("all-students")
                         .withType("GET"),
                 linkTo(methodOn(StudentController.class)
-                        .getDisciplineForStudent(null))
+                        .getDisciplineForStudent(null,null))
                         .withRel("lectures")
                         .withType("GET"));
 
@@ -97,15 +99,21 @@ public class StudentController {
     }
 
     @GetMapping(value = "/lectures", produces = "application/JSON")
-    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<CollectionModel<EntityModel<DisciplinaDTO>>> getDisciplineForStudent
+            (@RequestParam(required = false) String studentId,
+             @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
 
 
+        int id;
         UserDetailDTO userDetail = authService.getUserDetail(authorizationHeader, List.of(ADMIN, PROFESOR, STUDENT));
-
-        // if role admin trebuie sa existe un param gen idStudent
-
-        int id = studentService.findStudentIdByEmail(userDetail.getEmail());
+        if (userDetail.getRole() == ADMIN) {
+            if (studentId == null || studentId.trim().isEmpty())
+                throw new RequestParamWrong("", "studentId", "no student selected");
+            else
+                id = HelperFunctions.stringToInt(studentId, "student id");
+        }
+        else
+            id = studentService.findStudentIdByEmail(userDetail.getEmail());
 
         List<EntityModel<DisciplinaDTO>> lectures = new ArrayList<>();
 
@@ -131,7 +139,7 @@ public class StudentController {
 
 
         Link selfLink = linkTo(methodOn(StudentController.class)
-                .getDisciplineForStudent(null))
+                .getDisciplineForStudent(null,null))
                 .withSelfRel()
                 .withType("GET");
         CollectionModel<EntityModel<DisciplinaDTO>> collectionModel = CollectionModel.of(lectures, selfLink);
