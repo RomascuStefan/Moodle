@@ -66,6 +66,7 @@ class AuthService(auth_service_pb2_grpc.AuthServiceServicer):
 
     def GetUserDetails(self, request, context):
         token = request.token
+        print(f"Token primit pe server IDM: {token}")
 
         try:
             payload = JWTManager.verify_token(token)
